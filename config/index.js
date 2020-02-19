@@ -14,13 +14,12 @@ module.exports = {
     assetsPublicPath: '/',
     // 代理列表, 是否开启代理通过[./dev.env.js]配置
     proxyTable: devEnv.OPEN_PROXY === false ? {} : {
-      '/fourbook': {
-        // target: 'http://192.168.0.132:8082/fourbook/', //彭清
-        // target: 'http://2895cl5225.qicp.vip/fourbook/', //詹加州外网
-        target: 'http://zhou.nat300.top/fourbook/', //光耀外网
+      '/health_body': {
+        // target: 'http://192.168.0.132:8082/health_body/', //彭清
+        target: 'http://2895cl5225.qicp.vip/health_body/', //詹加州外网
         changeOrigin: true,
         pathRewrite: {
-          '^/fourbook': '/'
+          '^/health_body': '/'
         }
       }
     },

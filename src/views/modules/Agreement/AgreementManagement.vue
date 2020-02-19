@@ -1,19 +1,14 @@
 <template>
+  <!-- 人员统计 -->
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
         <el-input style="width:200px" v-model="dataForm.keyword" placeholder="请输入关键字" clearable></el-input>
-        <el-date-picker style="width:200px" v-model="dataForm.start_time" type="date" placeholder="选择开始时间">
-        </el-date-picker>
-        <el-date-picker style="width:200px" v-model="dataForm.end_time" type="date" placeholder="选择结束时间">
-        </el-date-picker>
         <!-- <el-input style="width:200px" v-model="dataForm.keyword" placeholder="角色名称" clearable></el-input> -->
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:role:save')" type="primary" @click="add()">添加协议</el-button>
-        <el-button v-if="isAuth('sys:role:save')" type="primary" @click="personExport()">人员导出</el-button>
-        <!--<el-button v-if="isAuth('sys:role:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+        <el-button v-if="isAuth('sys:role:save')" type="primary" @click="add()">新增</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
@@ -62,10 +57,22 @@
         <el-form-item label="标题" :label-width="formLabelWidth">
           <el-input style="width:90%" v-model="addForm.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="协议模板" :label-width="formLabelWidth">
+        <!-- <el-form-item label="协议模板" :label-width="formLabelWidth">
           <el-select style="width:90%" v-model="addForm.region" placeholder="请选择协议模板">
             <el-option v-for="item in xieyiList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
+        </el-form-item> -->
+        <el-form-item label="特殊资源" :label-width="formLabelWidth">
+          <el-radio-group v-model="addForm.sex" >
+            <el-radio label="0">男</el-radio>
+            <el-radio label="1">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="联系方式" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="身份证号码" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.idcard" autocomplete="off"></el-input>
         </el-form-item>
          <el-form-item label="承诺人" :label-width="formLabelWidth">
           <!-- <el-input style="width:90%" type="text" @focus="focusfns" v-model="personList"></el-input> -->
@@ -76,7 +83,7 @@
     :props="props"
     :show-all-levels="false"
      ref="myCascader"
-     v-model="sssss"
+     v-model="addForm.gcode"
     @change="changeCascader"
     clearable></el-cascader>
         </el-form-item>
@@ -86,44 +93,12 @@
         <el-button type="primary" @click="commit()">确 定</el-button>
       </div>
     </el-dialog>
-
-
-            <el-dialog title="用户协议审核" :visible.sync="toExamine" width="70%">
-            <el-table @selection-change="handleSelectionChange" :data="gridData" height="400px" ref="multipleTable">
-                <el-table-column type="selection" header-align="center"  align="center" width="50">
-                </el-table-column>
-                <el-table-column property="name" label="名称" width="150"></el-table-column>
-                <el-table-column property="signStatusDesc" label="状态" width="200"></el-table-column>
-                <el-table-column property="address" label="备注">
-<template slot-scope="scope">
-  <!-- <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="shenhetongguo(scope.row)">审核通过</el-button> -->
-  <el-input style="width:90%" v-model="scope.row.notes"  autocomplete="off"></el-input>
-</template>
-                </el-table-column>
-                <el-table-column property="updateTime" :formatter="updateTimeFormatter" label="签约时间"></el-table-column>
-                <el-table-column property="address" label="操作" width="300px">
-<template slot-scope="scope">
-  <el-button v-if="isAuth('sys:role:update')" v-show="scope.row.signStatus!=9" type="text" size="small" @click="shenhetongguo(scope.row)">审核通过</el-button>
-  <el-button v-if="isAuth('sys:role:update')" v-show="scope.row.signStatus==9" type="text" size="small" style="color:red">签约完成</el-button>
-  <el-button v-if="isAuth('sys:role:update')" v-show="scope.row.signStatus!=9" type="text" size="small" @click="shenheshibai(scope.row)">审核失败</el-button>
-  <el-button v-if="isAuth('sys:role:update')" v-show="scope.row.signStatus==9" type="text" size="small" style="color:red">无法修改</el-button>
-  <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="preview(scope.row)">预览</el-button>
-  <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="daochuPDF(scope.row)">导出PDF</el-button>
-</template>
-                </el-table-column>
-            </el-table>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="cancel()">返回</el-button>
-                <el-button type="primary" @click="piliangshenhe()">批量审核通过</el-button>
-                <el-button type="primary" @click="piliangshenheshibai()">批量审核失败</el-button>
-            </div>
-        </el-dialog>
-
   </div>
 </template>
 
 <script>
   import AddOrUpdate from '../sys/user-add-or-update'
+  import {groupData,groupChangeTree} from "@/api/modules/sys/group"
   import ToExamine from './ToExamine'
   export default {
     data() {
@@ -136,9 +111,9 @@
         sssss: [],
         cascader: ["30"],
         props: {
-          multiple: true,
-          label: 'label',
-          value: "id",
+          multiple: false,
+          label: 'gName',
+          value: "gCode",
         },
         options: [], //树形结构
         checkedRoleIds: [30],
@@ -158,7 +133,10 @@
         addForm: {
           name: "",
           region: "",
-          personList: ""
+          gcode:'',
+          sex:"",
+          mobile:"",
+          idcard:""
         },
         dataList: [],
         pageIndex: 1,
@@ -168,7 +146,6 @@
         dataListSelections: [],
         addOrUpdateVisible: false,
         selectedList: [],
-        personList: "",
         isId: "",
         editData: {},
         tem: [],
@@ -182,166 +159,13 @@
     activated() {
       this.getDataList()
       this.getTreeData()
+      groupData().then((data=>{
+        console.log("树形结构]]]]]]]]]]]]]]]]]",data)
+            this.options =  groupChangeTree(data.data.groupList)
+      }))
     },
     methods: {
-      //人员导出
-      personExport() {
-            console.log("人员导出")
-                      this.$http({
-            url: this.$http.adornUrl('/protocol/exportExecl'),
-            method: 'post',
-            data: this.$http.adornData()
-          }).then(({
-            data
-          }) => {
-            if (data && data.code === 0) {
-              console.log("----",data.url)
-              window.location.href = data.url
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500,
-              })
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-      },
-      preview( val ) {
-        // return
-         window.open("http://zhou.nat300.top/fourbook/upload/view/sign_"+val.postId+"_"+val.userId+".pdf")
-      },
-      daochuPDF( val ) {
-        let token = sessionStorage.getItem("token")
-        // return
-         window.location.href = "http://zhou.nat300.top/fourbook/protocol/exportPdf?filename=" + "sign_"+val.postId+"_"+val.userId+".pdf"
 
-        // this.$http({
-        //   url: this.$http.adornUrl('/protocol/exportPdf'),
-        //   method: 'post',
-        //   data: this.$http.adornData({
-        //     filename:"sign_"+val.postId+"_"+val.userId+".pdf"
-        //   })
-        // }).then(({
-        //   data
-        // }) => {
-        //   if (data && data.code === 0) {
-        //     this.gridData = data.data
-        //     this.$message.success("操作成功")
-        //     this.toExamine = false
-        //   } else {
-        //     this.$message.error(data.msg)
-        //   }
-        // })
-      },
-      piliangshenheshibai() {
-        if (this.multipleSelection.length == 0) {
-          return
-        }
-        this.multipleSelection.map((item, index) => {
-          if (item.signStatus != 1) {
-            this.no = false
-            return
-          }
-        })
-        if (!this.no) {
-          this.$message.error("操作有误,请确认后从新操作")
-          this.toExamine = false
-          return
-        }
-        this.$http({
-          url: this.$http.adornUrl('/protocol/userRet'),
-          method: 'post',
-          data: this.$http.adornData(this.multipleSelection)
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            this.gridData = data.data
-            this.$message.success("操作成功")
-            this.toExamine = false
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
-      notesFormatter( val) {
-          console.log("notes---------",val)
-      },
-        shenheshibai(val) {
-        if (val.signStatus == 1) {
-          this.$http({
-            url: this.$http.adornUrl('/protocol/userRet'),
-            method: 'post',
-            data: this.$http.adornData([val])
-          }).then(({
-            data
-          }) => {
-            if (data && data.code === 0) {
-              this.gridData = data.data
-              this.toExamine = false
-               this.$message.success("操作成功")
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        } else {
-          this.$message.error("暂不能做审核操作")
-        }
-      },
-      piliangshenhe() {
-        if (this.multipleSelection.length == 0) {
-          return
-        }
-        this.multipleSelection.map((item, index) => {
-          if (item.signStatus != 1) {
-            this.no = false
-            return
-          }
-        })
-        if (!this.no) {
-          this.$message.error("操作有误,请确认后从新操作")
-          this.toExamine = false
-          return
-        }
-        this.$http({
-          url: this.$http.adornUrl('/protocol/userCommit'),
-          method: 'post',
-          data: this.$http.adornData(this.multipleSelection)
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            this.gridData = data.data
-            this.toExamine = false
-             this.$message.success("操作成功")
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
-
-      shenhetongguo(val) {
-        if (val.signStatus == 1) {
-          this.$http({
-            url: this.$http.adornUrl('/protocol/userCommit'),
-            method: 'post',
-            data: this.$http.adornData([val])
-          }).then(({
-            data
-          }) => {
-            if (data && data.code === 0) {
-              this.gridData = data.data
-              this.toExamine = false
-              this.$message.success("操作成功")
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        } else {
-          this.$message.error("暂不能做审核操作")
-        }
-      },
       allRight() {
         this.toExamine = false
         shenhetongguo
@@ -353,9 +177,11 @@
         this.multipleSelection = val
       },
       changeCascader(val) {
+        
         let temp = ""
         val.map((item, index) => {
-          temp += item[item.length - 1] + ","
+          console.log('---------------',item)
+          temp += item + ","
         })
         this.addForm.personList = temp
       },
@@ -372,6 +198,7 @@
         }).then(({
           data
         }) => {
+          console.log("树形结构",data)
           if (data && data.code === 0) {
             this.data = data.data
             this.options = data.data
@@ -379,6 +206,8 @@
         })
       },
       addCommit() {
+        console.log(111111,this.addForm)
+        return
         this.$http({
           url: this.$http.adornUrl('/protocol/add'),
           method: 'get',

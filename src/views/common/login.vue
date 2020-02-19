@@ -10,7 +10,7 @@
     <div class="site-content__wrapper">
       <div class="site-content">
           <div>
-            <p class="top-title">四书后台管理系统</p>
+            <p class="top-title">体温监测管理系统</p>
             <p class="top-sutitle">Internal &nbsp;Business &nbsp;System</p>
           </div>
         <div class="login-main">

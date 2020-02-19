@@ -133,7 +133,7 @@
     },
     created() {
       let tunnel_token = sessionStorage.getItem("tunnel_token")
-      this.url = "/fourbook/sys/soprotocolcategory/upload?tunnel_token=" + tunnel_token
+      this.url = "/health_body/sys/soprotocolcategory/upload?tunnel_token=" + tunnel_token
     },
     components: {
       AddOrUpdate,

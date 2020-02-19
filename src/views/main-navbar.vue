@@ -3,7 +3,7 @@
     <!--<logo></logo>-->
     <div class="site-navbar__header " style="z-index:2147483647;">
       <h1 class="site-navbar__brand" @click="$router.push({ name: 'home' })">
-        <a class="site-navbar__brand-lg " style="z-index:2147483647;"  href="javascript:;">四书后台管理系统</a>
+        <a class="site-navbar__brand-lg " style="z-index:2147483647;"  href="javascript:;">体温检测管理系统</a>
       </h1>
     </div>
     
