@@ -13,21 +13,20 @@
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
       <!-- <el-table-column type="selection" header-align="center" align="center" width="50">
-      </el-table-column> -->
+        </el-table-column> -->
       <el-table-column prop="name" header-align="center" align="center" width="180" label="姓名">
       </el-table-column>
       <el-table-column prop="sex" header-align="center" align="center" width="180" label="性别">
       </el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" min-width="180" label="联系方式">
       </el-table-column>
-      <el-table-column prop="idcard" header-align="center"   :formatter="idcardFormatter" align="center" width="280" label="身份证号">
+      <el-table-column prop="idcard" header-align="center" :formatter="idcardFormatter" align="center" width="280" label="身份证号">
       </el-table-column>
-      <el-table-column  header-align="center" align="center" width="180" label="其他信息">
+      <el-table-column header-align="center" align="center" width="180" label="其他信息">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
-        </template>
+            <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
+</template>
       </el-table-column>
-      <!-- :formatter="createTimeFormatter" -->
       <el-table-column prop="creattime" header-align="center" align="center" width="280"  label="操作时间">
       </el-table-column>
       <el-table-column
@@ -39,7 +38,7 @@
 <template slot-scope="scope">
   <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="updateHandle(scope.row)">
     修改</el-button>
-    <span>|</span>
+  <span>|</span>
   <el-button v-if="isAuth('sys:role:delete')" style="color:red" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
 </template>
       </el-table-column>
@@ -206,23 +205,19 @@
         no: true
       }
     },
-
     activated() {
       this.getDataList()
-      groupData().then((data => {
+      groupData().then((data => {  //部门列表请求
         this.options = groupChangeTree(data.data.groupList)
       }))
     },
     methods: {
-      idcardFormatter( val ) {
-         let temp = val.idcard
-         let NewStr = String(val.idcard.substr(0, 6) + "****"+ val.idcard.substr(6 + "****".length))
-         return  NewStr.substr(0, 14) + "****"+ NewStr.substr(14 + "****".length)
+      idcardFormatter(val) { //身份证脱敏
+        let temp = val.idcard
+        let NewStr = String(val.idcard.substr(0, 6) + "****" + val.idcard.substr(6 + "****".length))
+        return NewStr.substr(0, 14) + "****" + NewStr.substr(14 + "****".length)
       },
-      handleSelectionChange(val) {
-        this.multipleSelection = val
-      },
-      changeCascader(val) {
+      changeCascader(val) { //改变部门函数
         let temp = ""
         val.map((item, index) => {
           console.log('---------------', item)
@@ -230,8 +225,7 @@
         })
         this.addForm.personList = temp
       },
-      handleCheckChange(data, checked, indeterminate) {},
-      gcodeFn(val) {
+      gcodeFn(val) { // 部门码
         let temp = ""
         val.map((item, index) => {
           console.log('---------------', item)
@@ -239,7 +233,7 @@
         })
         return temp
       },
-      healthstatusFn(val) {
+      healthstatusFn(val) { //症状码
         let temp = ""
         val.map((item, index) => {
           console.log('---------------', item)
@@ -247,16 +241,7 @@
         })
         return temp
       },
-      addCommit() {
-        console.log(111111, this.addForm, this.healthstatus)
-        // name: "",
-        //   gcode: '',
-        //   sex: "",
-        //   mobile: "",
-        //   idcard: "",
-        //   area: "",
-        //   address: "",
-        //   contact:"",
+      addCommit() { //添加请求
         this.$http({
           url: this.$http.adornUrl('/sys/member/save'),
           method: 'POST',
@@ -289,7 +274,7 @@
           }
         })
       },
-      updateHandle(row) {
+      updateHandle(row) { //编辑
         this.dialogFormVisible = true
         this.editData = row
         this.addForm = row
@@ -301,7 +286,7 @@
         let healthstatus = row.healthstatus
         this.healthstatus = healthstatus.split(",")
       },
-      editCommit() {
+      editCommit() { //编辑请求
         this.$http({
           url: this.$http.adornUrl('/sys/member/update'),
           method: 'POST',
@@ -315,11 +300,11 @@
             address: this.addForm.address,
             contact: this.addForm.contact,
             healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
-            id:this.editData.id
+            id: this.editData.id
           })
         }).then((data) => {
           if (data.data.code == 0) {
-           if (data.data.code == 0) {
+            if (data.data.code == 0) {
               this.dialogFormVisible = false
               this.$message({
                 message: "更新成功",
@@ -333,18 +318,18 @@
                 message: data.data.msg,
                 type: 'wraning',
               })
-          }
+            }
           }
         })
       },
-      commit() {
-        if(!/^1[3456789]\d{9}$/.test(this.addForm.mobile)) {
-           this.$message.error("请填写正确手机号")
-            return
+      commit() { //提交
+        if (!/^1[3456789]\d{9}$/.test(this.addForm.mobile)) {
+          this.$message.error("请填写正确手机号")
+          return
         }
-        if(!/^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/.test(this.addForm.idcard)) {
-           this.$message.error("请填写正确身份证号码")
-            return
+        if (!/^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/.test(this.addForm.idcard)) {
+          this.$message.error("请填写正确身份证号码")
+          return
         }
         if (Object.keys(this.editData).length == 0) { // 新增
           this.addCommit()
@@ -352,48 +337,14 @@
           this.editCommit()
         }
       },
-      tpCountFormatter(val) {
-        return val.tpCount + "个人员未审核"
-      },
-      createTimeFormatter(val) {
-        var date = new Date(val.createTime * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-        var Y = date.getFullYear() + '-';
-        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-        var D = date.getDate() + ' ';
-        var h = date.getHours() + ':';
-        var m = date.getMinutes() + ':';
-        var s = date.getSeconds();
-        if (String(D).length < 3) {
-          D = "0" + D
-        }
-        return Y + M + D;
-      },
-      updateTimeFormatter(val) {
-        if (val.updateTime != null) {
-          var date = new Date(val.updateTime * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-          var Y = date.getFullYear() + '-';
-          var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-          var D = date.getDate() + ' ';
-          var h = date.getHours() + ':';
-          var m = date.getMinutes() + ':';
-          var s = date.getSeconds();
-          if (String(D).length < 3) {
-            D = "0" + D
-          }
-          return Y + M + D;
-        }
-      },
-      // 添加协议
-      add() {
+      add() { // 添加
         this.dialogFormVisible = true
         this.editData = {}
-        this.addForm = {
-          }
+        this.addForm = {}
         this.gcode = []
         this.healthstatus = []
       },
-      // 获取数据列表
-      getDataList() {
+      getDataList() { // 获取数据列表
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/sys/member/list'),
@@ -407,7 +358,7 @@
           data
         }) => {
           if (data && data.code === 0) {
-            console.log("列表请求陈宫----",data)
+            console.log("列表请求陈宫----", data)
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
           } else {
@@ -417,23 +368,19 @@
           this.dataListLoading = false
         })
       },
-      // 每页数
-      sizeChangeHandle(val) {
+      sizeChangeHandle(val) { // 每页数
         this.pageSize = val
         this.pageIndex = 1
         this.getDataList()
       },
-      // 当前页
-      currentChangeHandle(val) {
+      currentChangeHandle(val) { // 当前页
         this.pageIndex = val
         this.getDataList()
       },
-      // 多选
-      selectionChangeHandle(val) {
+      selectionChangeHandle(val) { // 多选
         this.dataListSelections = val
       },
-      // 删除
-      deleteHandle(id) {
+      deleteHandle(id) { // 删除
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.roleId
         })
