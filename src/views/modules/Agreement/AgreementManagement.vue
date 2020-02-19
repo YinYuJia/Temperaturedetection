@@ -3,7 +3,7 @@
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input style="width:200px" v-model="dataForm.keyword" placeholder="请输入关键字" clearable></el-input>
+        <el-input style="width:200px" v-model="dataForm.name" placeholder="请输入关键字" clearable></el-input>
         <!-- <el-input style="width:200px" v-model="dataForm.keyword" placeholder="角色名称" clearable></el-input> -->
       </el-form-item>
       <el-form-item>
@@ -12,20 +12,23 @@
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
-      <el-table-column type="selection" header-align="center" align="center" width="50">
+      <!-- <el-table-column type="selection" header-align="center" align="center" width="50">
+      </el-table-column> -->
+      <el-table-column prop="name" header-align="center" align="center" width="180" label="姓名">
       </el-table-column>
-      <el-table-column prop="id" header-align="center" align="center" width="80" label="ID">
+      <el-table-column prop="sex" header-align="center" align="center" width="180" label="性别">
       </el-table-column>
-      <el-table-column prop="postTitle" header-align="center" align="center" label="标题">
+      <el-table-column prop="mobile" header-align="center" align="center" min-width="180" label="联系方式">
       </el-table-column>
-      <el-table-column prop="protocolCategoryName" header-align="center" align="center" label="分类">
+      <el-table-column prop="idcard" header-align="center" align="center" width="280" label="身份证号">
       </el-table-column>
-      <el-table-column prop="createTime" header-align="center" align="center" width="180" :formatter="createTimeFormatter" label="添加时间">
-      </el-table-column>
-      <el-table-column header-align="center" align="center" width="180" label="状态">
+      <el-table-column  header-align="center" align="center" width="180" label="其他信息">
         <template slot-scope="scope">
-                           <span style="color:#0f0">{{scope.row.tpCount}}</span> 个人员未审核
-</template>
+          <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
+        </template>
+      </el-table-column>
+      <!-- :formatter="createTimeFormatter" -->
+      <el-table-column prop="creattime" header-align="center" align="center" width="280"  label="操作时间">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -36,8 +39,8 @@
 <template slot-scope="scope">
   <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="updateHandle(scope.row)">
     修改</el-button>
-  <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="ToExamine(scope.row)">审核</el-button>
-  <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+    <span>|</span>
+  <el-button v-if="isAuth('sys:role:delete')" style="color:red" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
 </template>
       </el-table-column>
     </el-table>
@@ -51,10 +54,9 @@
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
-    <!-- <ToExamine v-if="addOrUpdateVisible" @istoExamine="istoExamine" :sendData="sendData"  ></ToExamine> -->
     <el-dialog title="添加协议" :visible.sync="dialogFormVisible">
       <el-form :model="addForm">
-        <el-form-item label="标题" :label-width="formLabelWidth">
+        <el-form-item label="姓名" :label-width="formLabelWidth">
           <el-input style="width:90%" v-model="addForm.name" autocomplete="off"></el-input>
         </el-form-item>
         <!-- <el-form-item label="协议模板" :label-width="formLabelWidth">
@@ -62,11 +64,23 @@
             <el-option v-for="item in xieyiList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="特殊资源" :label-width="formLabelWidth">
-          <el-radio-group v-model="addForm.sex" >
+        <el-form-item label="性别" :label-width="formLabelWidth"  >
+          <el-radio-group  v-model="addForm.sex" >
             <el-radio label="0">男</el-radio>
             <el-radio label="1">女</el-radio>
           </el-radio-group>
+        </el-form-item>
+                 <el-form-item label="部门" :label-width="formLabelWidth">
+          <el-cascader
+            style="width:90%"
+            :options="options"
+            :props="props"
+            :show-all-levels="false"
+            ref="myCascader"
+            v-model="gcode"
+            @change="changeCascader"
+            clearable>
+          </el-cascader>
         </el-form-item>
         <el-form-item label="联系方式" :label-width="formLabelWidth">
           <el-input style="width:90%" v-model="addForm.mobile" autocomplete="off"></el-input>
@@ -74,19 +88,24 @@
         <el-form-item label="身份证号码" :label-width="formLabelWidth">
           <el-input style="width:90%" v-model="addForm.idcard" autocomplete="off"></el-input>
         </el-form-item>
-         <el-form-item label="承诺人" :label-width="formLabelWidth">
-          <!-- <el-input style="width:90%" type="text" @focus="focusfns" v-model="personList"></el-input> -->
-
-          <el-cascader
-          style="width:90%"
-    :options="options"
-    :props="props"
-    :show-all-levels="false"
-     ref="myCascader"
-     v-model="addForm.gcode"
-    @change="changeCascader"
-    clearable></el-cascader>
+        <el-form-item label="当前所在地区" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.area" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="当前所在地区详细地址" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.address" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="近14天是否接触过新冠确诊病人或疑似病人" :label-width="formLabelWidth">
+          <el-radio-group v-model="addForm.contact" >
+            <el-radio label="0">否</el-radio>
+            <el-radio label="1">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        
+        <el-form-item label="目前健康状态" size="mini" prop="roleIdList" :label-width="formLabelWidth">
+         <el-checkbox-group v-model="healthstatus">
+            <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
+          </el-checkbox-group>
+      </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -97,16 +116,50 @@
 </template>
 
 <script>
-  import AddOrUpdate from '../sys/user-add-or-update'
-  import {groupData,groupChangeTree} from "@/api/modules/sys/group"
-  import ToExamine from './ToExamine'
+  import {
+    groupData,
+    groupChangeTree
+  } from "@/api/modules/sys/group"
   export default {
     data() {
       return {
+        // 0，无异常 1，发热 2乏力 3干咳 4 鼻塞 5流涕 6咽痛 7腹泻
+        roleList: [{
+          roleName: "无异常",
+          roleId: "0",
+          id: 1,
+        }, {
+          roleName: "发热",
+          roleId: "1",
+          id: 1,
+        }, {
+          roleName: "乏力",
+          roleId: "2",
+          id: 1,
+        }, {
+          roleName: "干咳",
+          roleId: "3",
+          id: 1,
+        }, {
+          roleName: "鼻塞",
+          roleId: "4",
+          id: 1,
+        }, {
+          roleName: "流涕",
+          roleId: "5",
+          id: 1,
+        }, {
+          roleName: "咽痛",
+          roleId: "6",
+          id: 1,
+        }, {
+          roleName: "腹泻",
+          roleId: "7",
+          id: 1,
+        }],
         multipleSelection: [],
         beizhu: "",
         gridData: [],
-        toExamine: false,
         sendData: {},
         sssss: [],
         cascader: ["30"],
@@ -124,158 +177,166 @@
         data: [],
         dialogFormVisible: false,
         xieyiList: [],
-        formLabelWidth: '120px',
+        formLabelWidth: '180px',
         dataForm: {
-          keyword: '',
-          start_time: "",
-          end_time: ""
+          name: '',
         },
+        gcode: [],
         addForm: {
           name: "",
-          region: "",
-          gcode:'',
-          sex:"",
-          mobile:"",
-          idcard:""
+          gcode: '',
+          sex: "",
+          mobile: "",
+          idcard: "",
+          area: "",
+          address: "",
+          contact: "",
         },
+        healthstatus: [],
         dataList: [],
         pageIndex: 1,
         pageSize: 10,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false,
         selectedList: [],
         isId: "",
         editData: {},
         tem: [],
-        no:true
+        no: true
       }
     },
-    components: {
-      AddOrUpdate,
-      ToExamine
-    },
+
     activated() {
       this.getDataList()
-      this.getTreeData()
-      groupData().then((data=>{
-        console.log("树形结构]]]]]]]]]]]]]]]]]",data)
-            this.options =  groupChangeTree(data.data.groupList)
+      groupData().then((data => {
+        this.options = groupChangeTree(data.data.groupList)
       }))
     },
+    watch:{
+         "dataForm":function(val) {
+           console.log("监听---",val)
+         }
+    },
     methods: {
+      look() {
 
-      allRight() {
-        this.toExamine = false
-        shenhetongguo
-      },
-      cancel() {
-        this.toExamine = false
       },
       handleSelectionChange(val) {
         this.multipleSelection = val
       },
       changeCascader(val) {
-        
         let temp = ""
         val.map((item, index) => {
-          console.log('---------------',item)
+          console.log('---------------', item)
           temp += item + ","
         })
         this.addForm.personList = temp
       },
-      handleCheckChange(data, checked, indeterminate) {
-      },
-      focusfns() {
-        // this.getTreeData()
-      },
-      getTreeData() { // 获取树形结构list
-        this.$http({
-          url: this.$http.adornUrl('/protocol/userTree'),
-          method: 'get',
-          params: this.$http.adornParams({})
-        }).then(({
-          data
-        }) => {
-          console.log("树形结构",data)
-          if (data && data.code === 0) {
-            this.data = data.data
-            this.options = data.data
-          }
+      handleCheckChange(data, checked, indeterminate) {},
+      gcodeFn(val) {
+        let temp = ""
+        val.map((item, index) => {
+          console.log('---------------', item)
+          temp += item + ","
         })
+        return temp
+      },
+      healthstatusFn(val) {
+        let temp = ""
+        val.map((item, index) => {
+          console.log('---------------', item)
+          temp += item + ","
+        })
+        return temp
       },
       addCommit() {
-        console.log(111111,this.addForm)
-        return
+        console.log(111111, this.addForm, this.healthstatus)
+        // name: "",
+        //   gcode: '',
+        //   sex: "",
+        //   mobile: "",
+        //   idcard: "",
+        //   area: "",
+        //   address: "",
+        //   contact:"",
         this.$http({
-          url: this.$http.adornUrl('/protocol/add'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'PostTitle': this.addForm.name,
-            'ProtocolCategoryId': this.addForm.region,
-            'personList': this.addForm.personList.slice(0, this.addForm.personList.length - 1),
+          url: this.$http.adornUrl('/sys/member/save'),
+          method: 'POST',
+          data: this.$http.adornData({
+            name: this.addForm.name,
+            gcode: this.gcodeFn(this.gcode).slice(0, this.gcodeFn(this.gcode).length - 1),
+            sex: this.addForm.sex,
+            mobile: this.addForm.mobile,
+            idcard: this.addForm.idcard,
+            area: this.addForm.area,
+            address: this.addForm.address,
+            contact: this.addForm.contact,
+            healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
           })
         }).then((data) => {
           if (data.data.code == 0) {
-            this.getDataList()
             this.dialogFormVisible = false
+            this.$message({
+              message: "保存成功",
+              type: 'success',
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message({
+              message: data.data.msg,
+              type: 'wraning',
+            })
           }
         })
       },
       updateHandle(row) {
         this.dialogFormVisible = true
         this.editData = row
-        this.addForm.name = row.postTitle
-        this.getxieyiDataList()
-        this.edit(row.id)
-      },
-      edit(id) {
-        this.isId = id
-        this.$http({
-          url: this.$http.adornUrl('/protocol/edit'),
-          method: 'get',
-          params: this.$http.adornParams({
-            id: id
-          })
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            let tem = []
-            data.data.map((item, index) => {
-              tem.push([item.parentId, String(item.id)])
-            })
-            this.sssss = tem
-            this.tem = tem
-          } else {
-            this.$message({
-              message: data.msg,
-              type: 'wraning',
-            })
-          }
-        })
+        this.addForm = row
+        this.addForm.sex = String(row.sex)
+        this.addForm.contact = String(row.contact)
+        console.log(row.gcode)
+        let temGcode = row.gcode
+        this.gcode = temGcode.split(",")
+        let healthstatus = row.healthstatus
+        this.healthstatus = healthstatus.split(",")
       },
       editCommit() {
-        let aaa = this.tem
-        let gggg = ""
-        aaa.map((item, index) => {
-          gggg += item[item.length - 1] + ","
-        })
         this.$http({
-          url: this.$http.adornUrl('/protocol/editSave'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'post_title': this.addForm.name,
-            'protocol_category_id': this.addForm.region,
-            'personList_old': gggg.slice(0, gggg.length - 1),
-            'personList_new': this.addForm.personList.slice(0, this.addForm.personList.length - 1),
-            'id': this.editData.id
+          url: this.$http.adornUrl('/sys/member/update'),
+          method: 'POST',
+          data: this.$http.adornData({
+            name: this.addForm.name,
+            gcode: this.gcodeFn(this.gcode).slice(0, this.gcodeFn(this.gcode).length - 1),
+            sex: this.addForm.sex,
+            mobile: this.addForm.mobile,
+            idcard: this.addForm.idcard,
+            area: this.addForm.area,
+            address: this.addForm.address,
+            contact: this.addForm.contact,
+            healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
+            id:this.editData.id
           })
         }).then((data) => {
           if (data.data.code == 0) {
-            this.getDataList()
-            this.dialogFormVisible = false
+           if (data.data.code == 0) {
+              this.dialogFormVisible = false
+              this.$message({
+                message: "更新成功",
+                type: 'success',
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message({
+                message: data.data.msg,
+                type: 'wraning',
+              })
+          }
           }
         })
       },
@@ -303,7 +364,7 @@
         return Y + M + D;
       },
       updateTimeFormatter(val) {
-        if(val.updateTime != null ) {
+        if (val.updateTime != null) {
           var date = new Date(val.updateTime * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
           var Y = date.getFullYear() + '-';
           var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
@@ -317,80 +378,33 @@
           return Y + M + D;
         }
       },
-      istoExamine(data) {
-      },
       // 添加协议
       add() {
         this.dialogFormVisible = true
         this.editData = {}
         this.addForm = {
-            name: "",
-            region: "",
-            personList: ""
-          },
-          this.isId = ""
-        this.sssss = []
-        this.getxieyiDataList()
-      },
-      getxieyiDataList() {
-        this.$http({
-          url: this.$http.adornUrl('/sys/soprotocolcategory/list'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'page': 1,
-            'limit': 10000,
-          })
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            this.xieyiList = data.page.list
-            if (Object.keys(this.editData).length != 0) {
-              this.addForm.region = Number(this.editData.protocolCategoryId)
-            }
           }
-        })
-      },
-      // 审核
-      ToExamine(row) {
-        this.toExamine = true
-        this.$http({
-          url: this.$http.adornUrl('/protocol/userVerify'),
-          method: 'post',
-          data: this.$http.adornData({
-            id: String(row.id),
-            limit: 10,
-            page: 1
-          })
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            this.gridData = data.data
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+        this.gcode = []
+        this.healthstatus = []
       },
       // 获取数据列表
       getDataList() {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/protocol/list'),
+          url: this.$http.adornUrl('/sys/member/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'keyword': this.dataForm.keyword,
-            'start_time': this.dataForm.start_time,
-            'end_time': this.dataForm.end_time,
+            'name': this.dataForm.name,
           })
         }).then(({
           data
         }) => {
           if (data && data.code === 0) {
-            this.dataList = data.data.list
-            this.totalPage = data.data.totalCount
+            console.log("列表请求陈宫----",data)
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -415,20 +429,18 @@
       },
       // 删除
       deleteHandle(id) {
-        // var ids = id ? [id] : this.dataListSelections.map(item => {
-        //   return item.roleId
-        // })
-        this.$confirm(`确定对id=${id}删除操作?`, '提示', {
+        var ids = id ? [id] : this.dataListSelections.map(item => {
+          return item.roleId
+        })
+        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/protocol/delete'),
+            url: this.$http.adornUrl('/sys/member/delete'),
             method: 'post',
-            data: this.$http.adornData({
-              id: String(id)
-            })
+            data: this.$http.adornData(ids, false)
           }).then(({
             data
           }) => {

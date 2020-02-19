@@ -223,25 +223,25 @@
           }
         })
       },
-      // userNameCheck() {
-      //   let username = this.dataForm.userName;
-      //   if (username) {
-      //     this.$http({
-      //       url: this.$http.adornUrl(`/sys/user/userCheck`),
-      //       method: 'get',
-      //       params: this.$http.adornParams({
-      //         'userName': username
-      //       })
-      //     }).then(({
-      //       data
-      //     }) => {
-      //       if (data && data.code === 0) {
-      //       } else {
-      //         this.$message.error(data.msg)
-      //       }
-      //     })
-      //   }
-      // },
+      userNameCheck() {
+        // let username = this.dataForm.userName;
+        // if (username) {
+        //   this.$http({
+        //     url: this.$http.adornUrl(`/sys/user/userCheck`),
+        //     method: 'get',
+        //     params: this.$http.adornParams({
+        //       'userName': username
+        //     })
+        //   }).then(({
+        //     data
+        //   }) => {
+        //     if (data && data.code === 0) {
+        //     } else {
+        //       this.$message.error(data.msg)
+        //     }
+        //   })
+        // }
+      },
       // 表单提交
       dataFormSubmit() {
         this.$refs['dataForm'].validate((valid) => {
