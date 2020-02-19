@@ -20,7 +20,7 @@
       </el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" min-width="180" label="联系方式">
       </el-table-column>
-      <el-table-column prop="idcard" header-align="center" align="center" width="280" label="身份证号">
+      <el-table-column prop="idcard" header-align="center"   :formatter="idcardFormatter" align="center" width="280" label="身份证号">
       </el-table-column>
       <el-table-column  header-align="center" align="center" width="180" label="其他信息">
         <template slot-scope="scope">
@@ -213,14 +213,11 @@
         this.options = groupChangeTree(data.data.groupList)
       }))
     },
-    watch:{
-         "dataForm":function(val) {
-           console.log("监听---",val)
-         }
-    },
     methods: {
-      look() {
-
+      idcardFormatter( val ) {
+         let temp = val.idcard
+         let NewStr = String(val.idcard.substr(0, 6) + "****"+ val.idcard.substr(6 + "****".length))
+         return  NewStr.substr(0, 14) + "****"+ NewStr.substr(14 + "****".length)
       },
       handleSelectionChange(val) {
         this.multipleSelection = val
