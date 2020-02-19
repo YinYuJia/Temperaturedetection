@@ -341,6 +341,14 @@
         })
       },
       commit() {
+        if(!/^1[3456789]\d{9}$/.test(this.addForm.mobile)) {
+           this.$message.error("请填写正确手机号")
+            return
+        }
+        if(!/^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/.test(this.addForm.idcard)) {
+           this.$message.error("请填写正确身份证号码")
+            return
+        }
         if (Object.keys(this.editData).length == 0) { // 新增
           this.addCommit()
         } else { //修改
