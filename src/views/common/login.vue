@@ -169,7 +169,7 @@
                 if (data && data.code === 0) {
                   this.$cookie.set('tunnel_token', data.tunnel_token)
                   sessionStorage.setItem("tunnel_token",data.tunnel_token)
-                  this.$router.replace({ name: 'Agreement-AgreementManagement' })
+                  this.$router.replace({ name: 'temperatureIndex-temperatureIndex' })
                 } else {
                   this.getCaptcha()
                   this.$message.error(data.msg)

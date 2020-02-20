@@ -3,30 +3,30 @@
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input style="width:200px" v-model="dataForm.name" placeholder="请输入分类名称" clearable></el-input>
+        <el-input style="width:200px" v-model="dataForm.membername" placeholder="请输入分类名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
-      <el-table-column prop="name" header-align="center" align="center" min-width="180" label="姓名">
+      <el-table-column prop="membername" header-align="center" align="center" min-width="180" label="姓名">
       </el-table-column>
-      <el-table-column prop="am" header-align="center" align="center"  min-width="180" label="上午测温">
+      <el-table-column prop="amtemperature" header-align="center" align="center" :formatter="amtemperatureFormatter" min-width="180" label="上午测温">
       </el-table-column>
-      <el-table-column prop="amTime" header-align="center" align="center"  min-width="180"  label="上午测温时间">
+      <el-table-column prop="amcreattime" header-align="center" align="center" min-width="180" label="上午测温时间">
       </el-table-column>
-      <el-table-column prop="bm" header-align="center" align="center"   min-width="180" label="下午测温">
+      <el-table-column prop="pmtemperature" header-align="center" align="center" :formatter="pmtemperatureFormatter" min-width="180" label="下午测温">
       </el-table-column>
-      <el-table-column prop="bmTime" header-align="center" align="center"  min-width="180" label="下午测温时间">
+      <el-table-column prop="pmcreattime" header-align="center" align="center" min-width="180" label="下午测温时间">
       </el-table-column>
-      <el-table-column prop="date" header-align="center" align="center"  min-width="180" label="测温日期">
+      <el-table-column prop="creattime" header-align="center" align="center" min-width="180" label="测温日期">
       </el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
-              <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
-              <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
-        </template>
+                <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+                <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+</template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -43,10 +43,10 @@
       <el-form :model="addForm">
 
         <el-form-item label="上午测温" :label-width="formLabelWidth">
-          <el-input style="width:90%" v-model="addForm.am" autocomplete="off"></el-input>
+          <el-input style="width:90%" v-model="amtemperature" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="下午测温" :label-width="formLabelWidth">
-          <el-input style="width:90%" v-model="addForm.bm" autocomplete="off"></el-input>
+          <el-input style="width:90%" v-model="pmtemperature" autocomplete="off"></el-input>
         </el-form-item>
 
       </el-form>
@@ -63,9 +63,11 @@
   export default {
     data() {
       return {
-        fileName:"",
+        amtemperature: "",
+        pmtemperature: "",
+        fileName: "",
         successUrl: "",
-        isShow:false,
+        isShow: false,
         name: "",
         url: "",
         dialogFormVisible: false,
@@ -74,48 +76,15 @@
           name: ''
         },
         addForm: {
-          name: "",
-          modeType: "3",
-          axespage: "",
-          axessign: "",
-          axestime: ""
         },
-        dataList: [
-          {
-            name:"张三",
-            am:"36.5℃",
-            amTime:"09:10",
-            bm:"36.5℃",
-            bmTime:"09:10",
-            date:"2020-02-02",
-            id:1
-          },
-          {
-            name:"张三",
-            am:"36.5℃",
-            amTime:"09:10",
-            bm:"36.5℃",
-            bmTime:"09:10",
-            date:"2020-02-02",
-            id:2
-          },
-          {
-            name:"张三",
-            am:"36.5℃",
-            amTime:"09:10",
-            bm:"36.5℃",
-            bmTime:"09:10",
-            date:"2020-02-02",
-            id:3
-          },
-        ],
+        dataList: [],
         pageIndex: 1,
         pageSize: 10,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
         isEdit: "",
-        more:{}
+        more: {}
       }
     },
     created() {
@@ -126,46 +95,17 @@
       AddOrUpdate,
     },
     activated() {
-      // this.getDataList()
+      this.getDataList()
     },
     methods: {
-      selectBD() {
-        this.$forceUpdate();
+      amtemperatureFormatter( val ) {
+         return val.amtemperature + "℃"
       },
-      uploadSuccess(data) {
-        this.successUrl = data.res.url
-        this.name = data.res.name
-        this.isShow = false
-      },
-      uploadFiles() {
-        let file = this.$refs.upload.$refs['upload-inner'].$refs.input; //获取文件数据
-        let fileList = file.files;
-        let myform = new FormData()
-        myform.append('file', fileList[0]);
-        this.$http({
-          url: this.$http.adornUrl('/sys/topinion/upload'),
-          method: 'post',
-          data: this.$http.adornData(myform, false)
-        }).then(({
-          data
-        }) => {
-          if (data && data.code === 0) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1500,
-              onClose: () => {
-                this.getDataList()
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+      pmtemperatureFormatter( val ) {
+         return val.pmtemperature + "℃"
       },
       // 保存
       save() {
-
         this.dialogFormVisible = false
         let data = {}
         if (this.isEdit == "") {
@@ -175,38 +115,33 @@
             fileurl: this.successUrl
           }
         } else {
-          if(this.successUrl == "") {
-            data = {
-              ...this.addForm,
-                id: this.isEdit,
-              filename:this.more.file.name,
-              fileurl:this.more.file.url,
-            }
-          }else{
-            data = {
-              ...this.addForm,
-                id: this.isEdit,
-              filename: this.name,
-            fileurl: this.successUrl
-            }
+          data = {
+            id: this.isEdit,
+            amtemperature: this.amtemperature,
+            pmtemperature: this.pmtemperature,
           }
-
         }
         this.$http({
-          url: this.isEdit == "" ? this.$http.adornUrl('/sys/soprotocolcategory/save') : this.$http.adornUrl('/sys/soprotocolcategory/update'),
+          url: this.isEdit == "" ? this.$http.adornUrl('/sys/healthstatistics/save') : this.$http.adornUrl('/sys/healthstatistics/update'),
           method: 'post',
           data: this.$http.adornData(data, false)
         }).then((data) => {
-          if( data.data.code == 0 ) {
+          if (data.data.code == 0) {
             this.getDataList()
             this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500,
-                onClose: () => {
-                  // this.getDataList()
-                }
-              })
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                // this.getDataList()
+              }
+            })
+          } else {
+            this.$message({
+              message: data.data,
+              type: 'error',
+              duration: 1500,
+            })
           }
         })
       },
@@ -214,21 +149,18 @@
       getDataList() {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/sys/soprotocolcategory/list'),
+          url: this.$http.adornUrl('/sys/healthstatistics/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'name': this.dataForm.name
+            'membername': this.dataForm.membername
           })
         }).then(({
           data
         }) => {
           if (data && data.code === 0) {
             let newList = []
-            data.page.list.map((item, index) => {
-              let aaa = JSON.parse(item.more)
-            })
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
           } else {
@@ -255,14 +187,13 @@
       },
       // 新增 / 修改
       addOrUpdateHandle(row) {
-
-         this.isShow = true
+        this.isShow = true
         this.dialogFormVisible = true
         this.isEdit = row.id;
-        this.addForm = row
-          this.$nextTick(() => {
-
-          })
+        this.amtemperature = row.amtemperature
+        this.pmtemperature = row.pmtemperature
+        this.$nextTick(() => {
+        })
       },
       // 删除
       deleteHandle(id) {
@@ -275,7 +206,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/sys/soprotocolcategory/delete'),
+            url: this.$http.adornUrl('/sys/healthstatistics/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({
