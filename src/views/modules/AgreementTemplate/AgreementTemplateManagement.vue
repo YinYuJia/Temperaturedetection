@@ -1,4 +1,5 @@
 <template>
+  <!-- 健康统计 -->
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
@@ -6,26 +7,26 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:role:save')" type="primary" @click="add()">添加协议分类</el-button>
-
-        <!--<el-button v-if="isAuth('sys:role:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
-      <el-table-column type="selection" header-align="center" align="center" width="50">
+      <el-table-column prop="name" header-align="center" align="center" min-width="180" label="姓名">
       </el-table-column>
-      <el-table-column prop="id" header-align="center" align="center" width="80" label="ID">
+      <el-table-column prop="am" header-align="center" align="center"  min-width="180" label="上午测温">
       </el-table-column>
-      <el-table-column prop="name" header-align="center" align="center" label="分类名称">
+      <el-table-column prop="amTime" header-align="center" align="center"  min-width="180"  label="上午测温时间">
       </el-table-column>
-      <el-table-column prop="status" header-align="center" align="center" :formatter="formatterData" label="状态">
+      <el-table-column prop="bm" header-align="center" align="center"   min-width="180" label="下午测温">
+      </el-table-column>
+      <el-table-column prop="bmTime" header-align="center" align="center"  min-width="180" label="下午测温时间">
+      </el-table-column>
+      <el-table-column prop="date" header-align="center" align="center"  min-width="180" label="测温日期">
       </el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
-              <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row)">编辑</el-button>
-              <!-- <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="ToExamine(scope.row.id)">隐藏</el-button> -->
+              <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
               <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
-</template>
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -38,35 +39,16 @@
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
-    <ToExamine v-if="addOrUpdateVisible" @istoExamine="istoExamine"></ToExamine>
-    <el-dialog title="添加协议" :visible.sync="dialogFormVisible">
+    <el-dialog title="修改测温" :visible.sync="dialogFormVisible">
       <el-form :model="addForm">
-        <el-form-item label="分类" :label-width="formLabelWidth">
-          <el-select style="width:90%" v-model="addForm.modeType" placeholder="请选择协议模板">
-            <!-- <el-option label="保密工作协议书" value="1"></el-option>
-            <el-option label="员工保密承诺书" value="2"></el-option>
-            <el-option label="涉密人员保证书" value="3"></el-option>
-            <el-option label="涉密人员离岗保密承诺书" value="4"></el-option> -->
-            <el-option :label="item.bankName" :key="item.bankId" v-for="item in banklist" :value="item.bankId"></el-option>
-          </el-select>
+
+        <el-form-item label="上午测温" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.am" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="协议标题" :label-width="formLabelWidth">
-          <el-input style="width:90%" v-model="addForm.name" autocomplete="off"></el-input>
+        <el-form-item label="下午测温" :label-width="formLabelWidth">
+          <el-input style="width:90%" v-model="addForm.bm" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="协议模板文件" :label-width="formLabelWidth">
-          <!-- :http-request="uploadFiles" -->
-          <el-upload ref='upload' :auto-upload='true'  :on-success="uploadSuccess"  :multiple='false' :limit="1"  :action='url' >
-              <el-button slot="trigger" size="mini" type="primary">选取文件</el-button>
-               <p v-if="isShow">{{fileName}}</p>
-              <!--<el-button @click='uploadFiles' size="mini" type="primary">点击上传</el-button> -->
-          </el-upload>
-        </el-form-item>
-        <p style="margin-left:30px;font-size:20px">文件位置</p>
-        <el-form-item label="承诺人" :label-width="formLabelWidth">
-          <el-input style="width:29.6%" placeholder="页数" v-model="addForm.axespage" autocomplete="off"></el-input>
-          <el-input style="width:29.6%" placeholder="请填写签名坐标" v-model="addForm.axessign" autocomplete="off"></el-input>
-          <el-input style="width:29.6%" placeholder="请填写签名日期" v-model="addForm.axestime" autocomplete="off"></el-input>
-        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -78,7 +60,6 @@
 
 <script>
   import AddOrUpdate from '../sys/user-add-or-update'
-  import ToExamine from './ToExamine'
   export default {
     data() {
       return {
@@ -87,27 +68,6 @@
         isShow:false,
         name: "",
         url: "",
-        banklist: [{
-            bankName: "保密工作协议书",
-            bankId: "1",
-          },
-          {
-            bankName: "员工保密承诺书",
-            bankId: "2",
-          },
-          {
-            bankName: "涉密人员保证书",
-            bankId: "3",
-          },
-          {
-            bankName: "涉密人员离岗保密承诺书",
-            bankId: "4",
-          },
-          {
-            bankName: "合规管理员工承诺书",
-            bankId: "5",
-          },
-        ],
         dialogFormVisible: false,
         formLabelWidth: '120px',
         dataForm: {
@@ -120,13 +80,40 @@
           axessign: "",
           axestime: ""
         },
-        dataList: [],
+        dataList: [
+          {
+            name:"张三",
+            am:"36.5℃",
+            amTime:"09:10",
+            bm:"36.5℃",
+            bmTime:"09:10",
+            date:"2020-02-02",
+            id:1
+          },
+          {
+            name:"张三",
+            am:"36.5℃",
+            amTime:"09:10",
+            bm:"36.5℃",
+            bmTime:"09:10",
+            date:"2020-02-02",
+            id:2
+          },
+          {
+            name:"张三",
+            am:"36.5℃",
+            amTime:"09:10",
+            bm:"36.5℃",
+            bmTime:"09:10",
+            date:"2020-02-02",
+            id:3
+          },
+        ],
         pageIndex: 1,
         pageSize: 10,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false,
         isEdit: "",
         more:{}
       }
@@ -137,21 +124,13 @@
     },
     components: {
       AddOrUpdate,
-      ToExamine
     },
     activated() {
-      this.getDataList()
+      // this.getDataList()
     },
     methods: {
       selectBD() {
         this.$forceUpdate();
-      },
-      formatterData(val) {
-        if (val.status == 1) {
-          return "显示"
-        } else {
-          return "隐藏"
-        }
       },
       uploadSuccess(data) {
         this.successUrl = data.res.url
@@ -183,29 +162,6 @@
             this.$message.error(data.msg)
           }
         })
-      },
-      istoExamine(data) {
-        this.addOrUpdateVisible = false
-      },
-      // 添加协议
-      add() {
-        this.dialogFormVisible = true
-        this.isShow = false
-        this.addForm = {
-          name: "",
-          modeType: "3",
-          axespage: "",
-          axessign: "",
-          axestime: ""
-        }
-        this.isEdit = ""
-        if(this.$refs.upload != undefined ) {
-          // this.$refs.upload.clearFiles()
-        }
-      },
-      // 审核
-      ToExamine(id) {
-        this.addOrUpdateVisible = true
       },
       // 保存
       save() {
@@ -299,22 +255,11 @@
       },
       // 新增 / 修改
       addOrUpdateHandle(row) {
-        if( this.$refs.upload!=undefined) {
-          this.$refs.upload.clearFiles()
-        }
+
          this.isShow = true
         this.dialogFormVisible = true
         this.isEdit = row.id;
-        let more = JSON.parse(row.more)
-        this.more = JSON.parse(row.more)
-        this.fileName = more.file.name
-        this.addForm = {
-            name: row.name,
-            modeType: String(row.modeType),
-            axespage: more.axes.page,
-            axessign: more.axes.sign,
-            axestime: more.axes.time,
-          },
+        this.addForm = row
           this.$nextTick(() => {
 
           })
