@@ -14,13 +14,13 @@
       </el-table-column>
       <el-table-column prop="amtemperature" header-align="center" align="center" :formatter="amtemperatureFormatter" min-width="180" label="上午测温">
       </el-table-column>
-      <el-table-column prop="amcreattime" header-align="center" align="center" min-width="180" label="上午测温时间">
+      <el-table-column prop="amcreattime" header-align="center" align="center" min-width="180" :formatter="timeamFormatter" label="上午测温时间">
       </el-table-column>
       <el-table-column prop="pmtemperature" header-align="center" align="center" :formatter="pmtemperatureFormatter" min-width="180" label="下午测温">
       </el-table-column>
-      <el-table-column prop="pmcreattime" header-align="center" align="center" min-width="180" label="下午测温时间">
+      <el-table-column prop="pmcreattime" header-align="center" align="center" min-width="180" :formatter="timepmFormatter" label="下午测温时间">
       </el-table-column>
-      <el-table-column prop="creattime" header-align="center" align="center" min-width="180" label="测温日期">
+      <el-table-column prop="creattime" header-align="center" align="center" min-width="180" :formatter="creattimeFormatter" label="测温日期">
       </el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
@@ -98,6 +98,15 @@
       this.getDataList()
     },
     methods: {
+      timeamFormatter( val ) {
+          return val.amcreattime.split(" ")[1]
+      },
+      timepmFormatter( val ) {
+          return val.pmcreattime.split(" ")[1]
+      },
+      creattimeFormatter( val ) {
+          return val.creattime.split(" ")[0]
+      },
       amtemperatureFormatter( val ) {
          return val.amtemperature + "℃"
       },

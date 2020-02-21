@@ -101,7 +101,11 @@
         </el-form-item>
         
         <el-form-item label="目前健康状态" size="mini" prop="roleIdList" :label-width="formLabelWidth">
-         <el-checkbox-group v-model="healthstatus">
+          <el-radio-group v-if="ishealthstatus" v-model="FFFhealthstatus" >
+            <el-radio label="0">无异常</el-radio>
+            <el-radio label="1">发热</el-radio>
+          </el-radio-group>
+         <el-checkbox-group v-if="!ishealthstatus" v-model="healthstatus">
             <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
           </el-checkbox-group>
       </el-form-item>
@@ -122,16 +126,10 @@
   export default {
     data() {
       return {
+        ishealthstatus:true,
+        FFFhealthstatus:"",
         // 0，无异常 1，发热 2乏力 3干咳 4 鼻塞 5流涕 6咽痛 7腹泻
-        roleList: [{
-          roleName: "无异常",
-          roleId: "0",
-          id: 1,
-        }, {
-          roleName: "发热",
-          roleId: "1",
-          id: 1,
-        }, {
+        roleList: [ {
           roleName: "乏力",
           roleId: "2",
           id: 1,
@@ -205,6 +203,14 @@
         no: true
       }
     },
+    watch:{
+        "FFFhealthstatus":function(val) {
+          console.log(val)
+          if( val == 1 ) {
+            this.ishealthstatus = false
+          }
+        }
+    },
     activated() {
       this.getDataList()
       groupData().then((data => {  //部门列表请求
@@ -242,6 +248,12 @@
         return temp
       },
       addCommit() { //添加请求
+      let temhealthstatus = ""
+      if(this.FFFhealthstatus == 0 ) {
+           temhealthstatus = 0
+      }else{
+          temhealthstatus = this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1)
+      }
         this.$http({
           url: this.$http.adornUrl('/sys/member/save'),
           method: 'POST',
@@ -254,7 +266,7 @@
             area: this.addForm.area,
             address: this.addForm.address,
             contact: this.addForm.contact,
-            healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
+            healthstatus: temhealthstatus
           })
         }).then((data) => {
           if (data.data.code == 0) {
@@ -275,16 +287,25 @@
         })
       },
       updateHandle(row) { //编辑
+        console.log(row)
         this.dialogFormVisible = true
-        this.editData = row
         this.addForm = row
+        if( row.healthstatus == 0 ) {
+          this.ishealthstatus = true
+          this.FFFhealthstatus = "0"
+        }else{
+          this.ishealthstatus =false
+          
+        }
+        this.editData = row
+        
         this.addForm.sex = String(row.sex)
         this.addForm.contact = String(row.contact)
-        console.log(row.gcode)
         let temGcode = row.gcode
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
         this.healthstatus = healthstatus.split(",")
+
       },
       editCommit() { //编辑请求
         this.$http({
@@ -343,6 +364,8 @@
         this.addForm = {}
         this.gcode = []
         this.healthstatus = []
+        this.ishealthstatus = true
+        this.FFFhealthstatus = ""
       },
       getDataList() { // 获取数据列表
         this.dataListLoading = true
