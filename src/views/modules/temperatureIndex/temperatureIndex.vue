@@ -8,7 +8,7 @@
                             <div class="img"></div>
                             <div class="info">
                                 <p>总人数（人）</p>
-                                <p class="P2">132</p>
+                                <p class="P2">{{constList.counts}}</p>
                             </div>
                         </div>
                     </div>
@@ -19,7 +19,7 @@
                             <div class="img"></div>
                             <div class="info">
                                 <p>健康人数（人）</p>
-                                <p class="P2">132</p>
+                                <p class="P2">{{constList.jk}}</p>
                             </div>
                         </div>
                     </div>
@@ -30,14 +30,29 @@
                             <div class="img"></div>
                             <div class="info">
                                 <p>思病人数（人）</p>
-                                <p class="P2">132</p>
+                                <p class="P2">{{constList.hb}}</p>
                             </div>
                         </div>
                     </div>
                 </el-col>
             </el-row>
         </header>
-        <div id="temperatureEchart" style="width:100%;height:300px;">
+        <div style="position: relative">
+            <div id="temperatureEchart" style="width:100%;height:300px">
+            </div>
+            <div class="sel">
+                <el-form :inline="true" :model="dataForm">
+                    <el-form-item>
+                        <el-date-picker v-model="dataForm.value1" format="yyyy-MM-dd" value-format="yyyy-MM-dd" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-select v-model="dataForm.region" placeholder="请选择人员">
+                            <el-option v-for="item in option" :key="item.index" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+            </div>
         </div>
         <div class="Table">
             <el-table :row-class-name="tableRowClassName" :data="dataList" border @selection-change="selectionChangeHandle" style="width: 100%;height:350px">
@@ -59,13 +74,16 @@
     export default {
         data() {
             return {
-                // tableRowClassName({row,index}) {
-                // if(index%3==1) {
-                //     return "successRow"
-                // }else{
-                //     return "successRow1"
-                // }
-                // },
+                constList: {
+                    counts: "",
+                    hb: "",
+                    jk: "",
+                },
+                option: [],
+                dataForm: {
+                    value1: ["2020-02-06", "2020-03-06"],
+                    region: ""
+                },
                 tem: null,
                 dataList: [{
                         name: "张三1",
@@ -151,7 +169,31 @@
                         id: 10
                     },
                 ],
+                echartForm: {
+                    echartsListX: [],
+                    echartsListY: [],
+                }
             }
+        },
+        activated() {
+            this.getDataList();
+            this.getPersonInfoList();
+            console.log(this.getBeforeDate(7))
+            this.dataForm.value1 = [this.getBeforeDate(7),this.getBeforeDate(0)]
+        },
+        created() {
+            
+        },
+        watch: {
+            dataForm: {
+                handler(newVal, oldVal) {
+                    console.log("---------", newVal)
+                    if (newVal.value1.length != 0) {
+                        this.getEchartList(newVal)
+                    }
+                },
+                deep: true
+            },
         },
         mounted() {
             this.temP()
@@ -165,6 +207,77 @@
             this.tem = null;
         },
         methods: {
+            getBeforeDate(n) {
+                var n = n;
+                var d = new Date();
+                var year = d.getFullYear();
+                var mon = d.getMonth() + 1;
+                var day = d.getDate();
+                if (day <= n) {
+                    if (mon > 1) {
+                        mon = mon - 1;
+                    } else {
+                        year = year - 1;
+                        mon = 12;
+                    }
+                }
+                d.setDate(d.getDate() - n);
+                year = d.getFullYear();
+                mon = d.getMonth() + 1;
+                day = d.getDate();
+                
+                let s = year + "-" + (mon < 10 ? ('0' + mon) : mon) + "-" + (day < 10 ? ('0' + day) : day);
+                return s;
+            },
+            getEchartList(data) {
+                console.log("有参数 可以请求", data)
+                this.$http({
+                    url: this.$http.adornUrl('/sys/healthstatistics/queryListByCreatTimeAndId'),
+                    method: 'get',
+                    params: this.$http.adornParams({
+                        memberid: data.region,
+                        startTime: data.value1[0] + " 00:00:00",
+                        endTime: data.value1[1] + " 23:59:59",
+                    })
+                }).then(({
+                    data
+                }) => {
+                    if (data && data.code === 0) {
+                        console.log("echart返回参数----------", data)
+                        this.echartForm.echartsListX = data.map.listX
+                        this.echartForm.echartsListY = data.map.listY
+                        this.temP()
+                    } else {}
+                })
+            },
+            getPersonInfoList() {
+                this.$http({
+                    url: this.$http.adornUrl('/sys/member/queryListBycf'),
+                    method: 'get',
+                    params: this.$http.adornParams()
+                }).then(({
+                    data
+                }) => {
+                    if (data && data.code === 0) {
+                        console.log("返回参数----------", data)
+                        this.option = data.memberEntities
+                        this.dataForm.region = data.memberEntities[0].id
+                    } else {}
+                })
+            },
+            getDataList() {
+                this.$http({
+                    url: this.$http.adornUrl('/sys/member/queryAllCounts'),
+                    method: 'get',
+                    params: this.$http.adornParams()
+                }).then(({
+                    data
+                }) => {
+                    if (data && data.code === 0) {
+                        this.constList = data.map
+                    } else {}
+                })
+            },
             tableRowClassName({
                 row,
                 rowIndex
@@ -191,7 +304,7 @@
                     xAxis: [{
                         type: 'category',
                         boundaryGap: false,
-                        data: ['02/01', '02/02', '02/03', '02/04', '02/05', '02/06', '02/07', '02/08', '02/09', '02/10']
+                        data: this.echartForm.echartsListX
                     }],
                     yAxis: [{
                         type: 'value'
@@ -202,7 +315,7 @@
                         type: 'line',
                         stack: '总量',
                         areaStyle: {},
-                        data: [120, 132, 101, 134, 90, 230, 210, 120, 132, 101],
+                        data: this.echartForm.echartsListY,
                         color: '#8cd5c2' //改变区域颜色
                     }, ]
                 };
@@ -218,6 +331,12 @@
 </script>
 
 <style>
+    .sel {
+        position: absolute;
+        z-index: 99999;
+        right: 0;
+        top: 0
+    }
     .temperature {
         padding: 5px 20px;
     }

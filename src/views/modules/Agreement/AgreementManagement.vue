@@ -13,10 +13,10 @@
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
       <!-- <el-table-column type="selection" header-align="center" align="center" width="50">
-        </el-table-column> -->
+          </el-table-column> -->
       <el-table-column prop="name" header-align="center" align="center" width="180" label="姓名">
       </el-table-column>
-      <el-table-column prop="sex" header-align="center" align="center" width="180" label="性别">
+      <el-table-column prop="sex" header-align="center" align="center" :formatter="sexFormatter" width="180" label="性别">
       </el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" min-width="180" label="联系方式">
       </el-table-column>
@@ -24,7 +24,7 @@
       </el-table-column>
       <el-table-column header-align="center" align="center" width="180" label="其他信息">
         <template slot-scope="scope">
-            <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
+              <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
 </template>
       </el-table-column>
       <el-table-column prop="creattime" header-align="center" align="center" width="280"  label="操作时间">
@@ -103,7 +103,7 @@
         <el-form-item label="目前健康状态" size="mini" prop="roleIdList" :label-width="formLabelWidth">
           <el-radio-group v-if="ishealthstatus" v-model="FFFhealthstatus" >
             <el-radio label="0">无异常</el-radio>
-            <el-radio label="1">发热</el-radio>
+            <el-radio label="1">发热(体温大于37.3℃)</el-radio>
           </el-radio-group>
          <el-checkbox-group v-if="!ishealthstatus" v-model="healthstatus">
             <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
@@ -111,7 +111,7 @@
       </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="cancel()">取 消</el-button>
         <el-button type="primary" @click="commit()">确 定</el-button>
       </div>
     </el-dialog>
@@ -126,10 +126,14 @@
   export default {
     data() {
       return {
-        ishealthstatus:true,
-        FFFhealthstatus:"",
+        ishealthstatus: true,
+        FFFhealthstatus: "",
         // 0，无异常 1，发热 2乏力 3干咳 4 鼻塞 5流涕 6咽痛 7腹泻
-        roleList: [ {
+        roleList: [{
+          roleName: "发热",
+          roleId: "1",
+          id: 1,
+        }, {
           roleName: "乏力",
           roleId: "2",
           id: 1,
@@ -203,21 +207,31 @@
         no: true
       }
     },
-    watch:{
-        "FFFhealthstatus":function(val) {
-          console.log(val)
-          if( val == 1 ) {
-            this.ishealthstatus = false
-          }
+    watch: {
+      "FFFhealthstatus": function(val) {
+        console.log(val)
+        if (val == 1) {
+          this.ishealthstatus = false
         }
+      }
     },
     activated() {
       this.getDataList()
-      groupData().then((data => {  //部门列表请求
+      groupData().then((data => { //部门列表请求
         this.options = groupChangeTree(data.data.groupList)
       }))
     },
     methods: {
+      cancel() {
+           this.dialogFormVisible = false
+      },
+      sexFormatter( val ) {
+         if( val.sex == 0) {
+           return "男"
+         }else{
+           return "女"
+         }
+      },
       idcardFormatter(val) { //身份证脱敏
         let temp = val.idcard
         let NewStr = String(val.idcard.substr(0, 6) + "****" + val.idcard.substr(6 + "****".length))
@@ -248,12 +262,19 @@
         return temp
       },
       addCommit() { //添加请求
-      let temhealthstatus = ""
-      if(this.FFFhealthstatus == 0 ) {
-           temhealthstatus = 0
-      }else{
+        let temhealthstatus = ""
+        if (this.FFFhealthstatus == 0) {
+          temhealthstatus = 0
+        } else {
           temhealthstatus = this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1)
-      }
+          if (temhealthstatus.split(",").indexOf("1") == -1) {
+            this.$message({
+              message: "请勾选发热选项",
+              type: 'wraning',
+            })
+            return
+          }
+        }
         this.$http({
           url: this.$http.adornUrl('/sys/member/save'),
           method: 'POST',
@@ -290,24 +311,34 @@
         console.log(row)
         this.dialogFormVisible = true
         this.addForm = row
-        if( row.healthstatus == 0 ) {
+        if (row.healthstatus == 0) {
           this.ishealthstatus = true
           this.FFFhealthstatus = "0"
-        }else{
-          this.ishealthstatus =false
-          
+        } else {
+          this.ishealthstatus = false
         }
         this.editData = row
-        
         this.addForm.sex = String(row.sex)
         this.addForm.contact = String(row.contact)
         let temGcode = row.gcode
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
         this.healthstatus = healthstatus.split(",")
-
       },
       editCommit() { //编辑请求
+        let temhealthstatus = ""
+        if (this.FFFhealthstatus == 0) {
+          temhealthstatus = 0
+        } else {
+          temhealthstatus = this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1)
+          if (temhealthstatus.split(",").indexOf("1") == -1) {
+            this.$message({
+              message: "请勾选发热选项",
+              type: 'wraning',
+            })
+            return
+          }
+        }
         this.$http({
           url: this.$http.adornUrl('/sys/member/update'),
           method: 'POST',
