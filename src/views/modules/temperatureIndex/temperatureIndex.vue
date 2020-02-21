@@ -55,14 +55,23 @@
             </div>
         </div>
         <div class="Table">
-            <el-table :row-class-name="tableRowClassName" :data="dataList" border @selection-change="selectionChangeHandle" style="width: 100%;height:350px">
-                <el-table-column prop="name" header-align="center" align="center" min-width="130" label="姓名">
+            <span class="TableInfo">实时预警数据</span>
+            <div class="Table_time">
+                <el-form :inline="true" :model="dataFormYuJing">
+                    <el-form-item>
+                        <el-date-picker v-model="dataFormYuJing.value1" format="yyyy-MM-dd" value-format="yyyy-MM-dd" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                        </el-date-picker>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-table :row-class-name="tableRowClassName" :cell-class-name="cellStyle" class="Table_time_form" :data="dataList" border @selection-change="selectionChangeHandle" style="width: 100%;height:285px">
+                <el-table-column prop="membername" header-align="center" align="center" min-width="130" label="姓名">
                 </el-table-column>
-                <el-table-column prop="am" header-align="center" align="center" min-width="130" label="上午测温">
+                <el-table-column prop="amtemperature" header-align="center" align="center" style="color:red" :formatter="amtemperatureFormatter" min-width="130" label="上午测温">
                 </el-table-column>
-                <el-table-column prop="amTime" header-align="center" align="center" min-width="130" label="上午测温时间">
+                <el-table-column prop="pmtemperature" header-align="center" align="center" :formatter="pmtemperatureFormatter" min-width="130" label="上午测温时间">
                 </el-table-column>
-                <el-table-column prop="date" header-align="center" align="center" min-width="130" label="预警时间">
+                <el-table-column prop="creattime" header-align="center" align="center" min-width="130" :formatter="creattimeFormatter" label="预警时间">
                 </el-table-column>
             </el-table>
         </div>
@@ -81,94 +90,14 @@
                 },
                 option: [],
                 dataForm: {
-                    value1: ["2020-02-06", "2020-03-06"],
+                    value1: [],
                     region: ""
                 },
+                dataFormYuJing: {
+                    value1: [],
+                },
                 tem: null,
-                dataList: [{
-                        name: "张三1",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 1
-                    },
-                    {
-                        name: "张三2",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 2
-                    },
-                    {
-                        name: "张三3",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 3
-                    }, {
-                        name: "张三4",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 4
-                    }, {
-                        name: "张三5",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 5
-                    }, {
-                        name: "张三6",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 6
-                    }, {
-                        name: "张三7",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 7
-                    }, {
-                        name: "张三8",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 8
-                    }, {
-                        name: "张三9",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 9
-                    }, {
-                        name: "张三10",
-                        am: "36.5℃",
-                        amTime: "09:10",
-                        bm: "36.5℃",
-                        bmTime: "09:10",
-                        date: "2020-02-02",
-                        id: 10
-                    },
-                ],
+                dataList: [],
                 echartForm: {
                     echartsListX: [],
                     echartsListY: [],
@@ -178,19 +107,21 @@
         activated() {
             this.getDataList();
             this.getPersonInfoList();
-            console.log(this.getBeforeDate(7))
-            this.dataForm.value1 = [this.getBeforeDate(7),this.getBeforeDate(0)]
-        },
-        created() {
-            
+            this.dataForm.value1 = [this.getBeforeDate(7), this.getBeforeDate(0)]
+            this.dataFormYuJing.value1 = [this.getBeforeDate(7), this.getBeforeDate(0)]
         },
         watch: {
             dataForm: {
                 handler(newVal, oldVal) {
-                    console.log("---------", newVal)
                     if (newVal.value1.length != 0) {
                         this.getEchartList(newVal)
                     }
+                },
+                deep: true
+            },
+            dataFormYuJing: {
+                handler(newVal, oldVal) {
+                    this.dataFormYuJingList(newVal)
                 },
                 deep: true
             },
@@ -207,6 +138,31 @@
             this.tem = null;
         },
         methods: {
+            creattimeFormatter(val) {
+                return val.creattime.split(" ")[0]
+            },
+            amtemperatureFormatter(val) {
+                return val.amtemperature + "℃"
+            },
+            pmtemperatureFormatter(val) {
+                return val.pmtemperature + "℃"
+            },
+            dataFormYuJingList(data) {
+                this.$http({
+                    url: this.$http.adornUrl('/sys/healthstatistics/queryListForTunusual'),
+                    method: 'get',
+                    params: this.$http.adornParams({
+                        startTime: data.value1[0] + " 00:00:00",
+                        endTime: data.value1[1] + " 23:59:59",
+                    })
+                }).then(({
+                    data
+                }) => {
+                    if (data && data.code === 0) {
+                        this.dataList = data.map.tunusualinfo
+                    } else {}
+                })
+            },
             getBeforeDate(n) {
                 var n = n;
                 var d = new Date();
@@ -225,12 +181,10 @@
                 year = d.getFullYear();
                 mon = d.getMonth() + 1;
                 day = d.getDate();
-                
                 let s = year + "-" + (mon < 10 ? ('0' + mon) : mon) + "-" + (day < 10 ? ('0' + day) : day);
                 return s;
             },
             getEchartList(data) {
-                console.log("有参数 可以请求", data)
                 this.$http({
                     url: this.$http.adornUrl('/sys/healthstatistics/queryListByCreatTimeAndId'),
                     method: 'get',
@@ -243,7 +197,6 @@
                     data
                 }) => {
                     if (data && data.code === 0) {
-                        console.log("echart返回参数----------", data)
                         this.echartForm.echartsListX = data.map.listX
                         this.echartForm.echartsListY = data.map.listY
                         this.temP()
@@ -259,7 +212,6 @@
                     data
                 }) => {
                     if (data && data.code === 0) {
-                        console.log("返回参数----------", data)
                         this.option = data.memberEntities
                         this.dataForm.region = data.memberEntities[0].id
                     } else {}
@@ -286,6 +238,22 @@
                     return 'warning-row';
                 } else {
                     return 'success-row';
+                }
+            },
+            cellStyle({
+                row,
+                column,
+                rowIndex,
+                columnIndex
+            }) {
+                if (columnIndex == 2) {
+                    if(row.pmtemperature > 37.3) {
+                        return 'cellStyle-red';
+                    }
+                } else if (columnIndex == 1) {
+                    if(row.amtemperature > 37.3) {
+                        return 'cellStyle-red';
+                    }
                 }
             },
             selectionChangeHandle(val) {},
@@ -337,10 +305,13 @@
         right: 0;
         top: 0
     }
+    .el-table .cellStyle-red {
+        color: red;
+    }
     .temperature {
         padding: 5px 20px;
     }
-    .el-table .warning-row {
+    .el-table .cellStyle-row {
         background: #f7faff;
     }
     .el-table .success-row {
@@ -348,6 +319,23 @@
     }
     .Table {
         margin-top: 15px;
+        position: relative;
+        border-top: 1px solid transparent;
+    }
+    .TableInfo {
+        font-size: 20px;
+        font-weight: 700;
+        color: rgba(0, 0, 0, .9);
+    }
+    .Table_time {
+        position: absolute;
+        height: 35px;
+        z-index: 99999;
+        top: 0;
+        right: 0;
+    }
+    .Table_time_form {
+        margin-top: 45px;
     }
     .el-row {
         margin-bottom: 20px;
