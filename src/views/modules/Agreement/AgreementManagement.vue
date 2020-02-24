@@ -53,7 +53,7 @@
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
-    <el-dialog title="添加协议" :visible.sync="dialogFormVisible">
+    <el-dialog :title="title" :visible.sync="dialogFormVisible">
       <el-form :model="addForm">
         <el-form-item label="姓名" :label-width="formLabelWidth">
           <el-input style="width:90%" v-model="addForm.name" autocomplete="off"></el-input>
@@ -111,6 +111,7 @@
       </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
+        <el-button v-if="!ishealthstatus" @click="goback()">返 回</el-button>
         <el-button @click="cancel()">取 消</el-button>
         <el-button type="primary" @click="commit()">确 定</el-button>
       </div>
@@ -126,6 +127,7 @@
   export default {
     data() {
       return {
+        title:"新增人员",
         ishealthstatus: true,
         FFFhealthstatus: "",
         // 0，无异常 1，发热 2乏力 3干咳 4 鼻塞 5流涕 6咽痛 7腹泻
@@ -221,6 +223,10 @@
       }))
     },
     methods: {
+      goback() {
+         this.ishealthstatus = !this.ishealthstatus
+         this.FFFhealthstatus = "0"
+      },
       cancel() {
            this.dialogFormVisible = false
       },
@@ -305,6 +311,7 @@
       },
       updateHandle(row) { //编辑
         this.dialogFormVisible = true
+        this.title= "编辑人员信息"
         this.addForm = row
         if (row.healthstatus == 0) {
           this.ishealthstatus = true
@@ -386,6 +393,7 @@
       },
       add() { // 添加
         this.dialogFormVisible = true
+        this.title = "新增人员"
         this.editData = {}
         this.addForm = {}
         this.gcode = []
@@ -432,7 +440,7 @@
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.roleId
         })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+        this.$confirm(`确定删除`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

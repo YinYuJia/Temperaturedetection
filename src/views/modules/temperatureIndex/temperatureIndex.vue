@@ -29,7 +29,7 @@
                         <div class="cella">
                             <div class="img"></div>
                             <div class="info">
-                                <p>思病人数（人）</p>
+                                <p>患病人数（人）</p>
                                 <p class="P2">{{constList.hb}}</p>
                             </div>
                         </div>
