@@ -209,7 +209,6 @@
     },
     watch: {
       "FFFhealthstatus": function(val) {
-        console.log(val)
         if (val == 1) {
           this.ishealthstatus = false
         }
@@ -240,7 +239,6 @@
       changeCascader(val) { //改变部门函数
         let temp = ""
         val.map((item, index) => {
-          console.log('---------------', item)
           temp += item + ","
         })
         this.addForm.personList = temp
@@ -248,7 +246,6 @@
       gcodeFn(val) { // 部门码
         let temp = ""
         val.map((item, index) => {
-          console.log('---------------', item)
           temp += item + ","
         })
         return temp
@@ -256,7 +253,6 @@
       healthstatusFn(val) { //症状码
         let temp = ""
         val.map((item, index) => {
-          console.log('---------------', item)
           temp += item + ","
         })
         return temp
@@ -308,7 +304,6 @@
         })
       },
       updateHandle(row) { //编辑
-        console.log(row)
         this.dialogFormVisible = true
         this.addForm = row
         if (row.healthstatus == 0) {
@@ -412,7 +407,6 @@
           data
         }) => {
           if (data && data.code === 0) {
-            console.log("列表请求陈宫----", data)
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
           } else {

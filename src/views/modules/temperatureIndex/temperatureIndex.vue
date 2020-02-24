@@ -272,7 +272,11 @@
                     xAxis: [{
                         type: 'category',
                         boundaryGap: false,
-                        data: this.echartForm.echartsListX
+                        data: this.echartForm.echartsListX,
+                        axisLabel: {  
+                            interval:0,  
+                            rotate:40  
+                        }
                     }],
                     yAxis: [{
                         type: 'value'
