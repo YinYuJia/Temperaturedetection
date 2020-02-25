@@ -99,13 +99,24 @@
     },
     methods: {
       timeamFormatter( val ) {
-          return val.amcreattime.split(" ")[1]
+        console.log("上午时间",val.amcreattime)
+        if( val.amcreattime != null) {
+           return val.amcreattime.split(" ")[1]
+        }else{
+          return "暂无时间"
+        }
       },
       timepmFormatter( val ) {
-          return val.pmcreattime.split(" ")[1]
+         console.log("下午时间",val.pmcreattime)
+          if( val.pmcreattime != null) {
+           return val.pmcreattime.split(" ")[1]
+        }else{
+          return "暂无时间"
+        }
       },
       creattimeFormatter( val ) {
           return val.creattime.split(" ")[0]
+          return ""
       },
       amtemperatureFormatter( val ) {
          return val.amtemperature + "℃"
