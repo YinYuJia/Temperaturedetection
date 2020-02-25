@@ -69,6 +69,24 @@
             <el-radio label="1">女</el-radio>
           </el-radio-group>
         </el-form-item>
+
+          <el-form-item label="上传照片" :label-width="formLabelWidth">
+              <el-upload ref='upload' 
+              style="width:90%"
+              :auto-upload='false'
+               :file-list="fileList"  
+               :multiple='false' :limit="1"  
+               :http-request="uploadFiles" 
+               accept="image/jpeg,image/gif,image/png" 
+               action='' 
+               list-type="picture"
+               :on-change='changeUpload'>
+                  <el-button slot="trigger" size="mini" type="primary">选取图片</el-button>
+                  <span>&nbsp;</span>
+                  <el-button @click='uploadFiles' size="mini" type="primary">点击上传</el-button>
+              </el-upload>
+        </el-form-item>
+
                  <el-form-item label="部门" :label-width="formLabelWidth">
           <el-cascader
             style="width:90%"
@@ -127,6 +145,7 @@
   export default {
     data() {
       return {
+        url: "",
         title:"新增人员",
         ishealthstatus: true,
         FFFhealthstatus: "",
@@ -194,6 +213,7 @@
           area: "",
           address: "",
           contact: "",
+          image:""
         },
         healthstatus: [],
         dataList: [],
@@ -206,7 +226,8 @@
         isId: "",
         editData: {},
         tem: [],
-        no: true
+        no: true,
+        fileList:[]
       }
     },
     watch: {
@@ -221,8 +242,82 @@
       groupData().then((data => { //部门列表请求
         this.options = groupChangeTree(data.data.groupList)
       }))
+
     },
     methods: {
+      changeUpload(val) {
+           console.log("val--",val)
+          //  this.addForm.image.url
+      },
+            uploadFiles() {
+                let file = this.$refs.upload.$refs['upload-inner'].$refs.input; //获取文件数据
+                let fileList = file.files;
+                let reader = new FileReader(); //html5读文件
+                console.log("fileList[0]",fileList)
+                console.log("fileList.size----", fileList[0].size <= 4194304);
+                if (fileList[0].size >= 4194304) {
+                    this.$message({
+                        message: "图片大小不能超过4M",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                if( fileList[0].name.split(".")[1] != "jpg") {
+                  this.$message({
+                        message: "只能上传jpg格式",
+                        type: 'warning'
+                    });
+                  return 
+                }
+                let myform = new FormData()
+                myform.append('file', fileList[0]);
+                console.log("开始请求")
+                this.$http({
+                  url: this.$http.adornUrl('/sys/member/upload'),
+                  method: 'POST',
+                  data: myform
+                }).then((data) => {
+                  console.log("返回值-----", data)
+                    if (data.data.code == 0) {
+                        this.$message({
+                            message: "上传成功",
+                            type: 'success'
+                        });
+                        this.addForm.image = data.data.res
+                    } else {
+                        this.$message({
+                            message: "上传失败",
+                            type: 'warning'
+                        });
+                    }
+                })
+                // reader.readAsDataURL(fileList[0]); //转BASE64  
+                // let imgFile
+                // // let that = this
+                // reader.onload = e => {
+                //     let imgFile
+                //     imgFile = e.target.result;
+                //     console.log("本地路径---",reader.result[0])
+                //     // let arr = imgFile.split(',')
+                //     // this.datas.faceBase64 = arr[1]
+                //     // console.log(imgFile)
+                //     this.formLabelAlign.image = imgFile
+                //     if (this.formLabelAlign.image != "") {
+                //         this.$message({
+                //             message: "上传成功",
+                //             type: 'success'
+                //         });
+                //     } else {
+                //         this.$message({
+                //             message: "上传失败",
+                //             type: 'warning'
+                //         });
+                //     }
+                // }
+            },
+      uploadSuccess(data) {
+        console.log("--上传照片成功回调--",data)
+      },
       goback() {
          this.ishealthstatus = !this.ishealthstatus
          this.FFFhealthstatus = "0"
@@ -277,6 +372,15 @@
             return
           }
         }
+        console.log("-------",this.addForm.image)
+        if(this.addForm.image == undefined) {
+            this.$message({
+              message: "请先上传照片",
+              type: 'error',
+            })
+            return
+        }
+        
         this.$http({
           url: this.$http.adornUrl('/sys/member/save'),
           method: 'POST',
@@ -289,7 +393,10 @@
             area: this.addForm.area,
             address: this.addForm.address,
             contact: this.addForm.contact,
-            healthstatus: temhealthstatus
+            healthstatus: temhealthstatus,
+            fileurl:this.addForm.image.url,
+            filename:this.addForm.image.name,
+
           })
         }).then((data) => {
           if (data.data.code == 0) {
@@ -325,7 +432,11 @@
         let temGcode = row.gcode
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
+        console.log("-----------------",row.fileurl,row.filename)
         this.healthstatus = healthstatus.split(",")
+        // this.addForm.image.url = row.fileurl
+        // this.addForm.image.name = row.filename
+        this.fileList = [{name:row.filename,url:row.fileurl}]
       },
       editCommit() { //编辑请求
         let temhealthstatus = ""
@@ -341,6 +452,14 @@
             return
           }
         }
+        console.log("-------",this.addForm.image)
+        if(this.fileList.length == 0) {
+            this.$message({
+              message: "请先上传照片",
+              type: 'error',
+            })
+            return
+        }
         this.$http({
           url: this.$http.adornUrl('/sys/member/update'),
           method: 'POST',
@@ -354,7 +473,9 @@
             address: this.addForm.address,
             contact: this.addForm.contact,
             healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
-            id: this.editData.id
+            id: this.editData.id,
+            fileurl:this.addForm.image.url,
+            filename:this.addForm.image.name,
           })
         }).then((data) => {
           if (data.data.code == 0) {
