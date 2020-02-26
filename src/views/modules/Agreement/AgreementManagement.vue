@@ -11,7 +11,8 @@
         <el-button v-if="isAuth('sys:role:save')" type="primary" @click="add()">新增</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
+    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle"
+      style="width: 100%;">
       <!-- <el-table-column type="selection" header-align="center" align="center" width="50">
           </el-table-column> -->
       <el-table-column prop="name" header-align="center" align="center" width="180" label="姓名">
@@ -20,36 +21,29 @@
       </el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" min-width="180" label="联系方式">
       </el-table-column>
-      <el-table-column prop="idcard" header-align="center" :formatter="idcardFormatter" align="center" width="280" label="身份证号">
+      <el-table-column prop="idcard" header-align="center" :formatter="idcardFormatter" align="center" width="280"
+        label="身份证号">
       </el-table-column>
       <el-table-column header-align="center" align="center" width="180" label="其他信息">
         <template slot-scope="scope">
-              <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看</el-button>
-</template>
+          <el-button v-if="isAuth('sys:role:update')" type="success" style="width:100px" @click="look(scope.row)">查看
+          </el-button>
+        </template>
       </el-table-column>
-      <el-table-column prop="creattime" header-align="center" align="center" width="280"  label="操作时间">
+      <el-table-column prop="creattime" header-align="center" align="center" width="280" label="操作时间">
       </el-table-column>
-      <el-table-column
-        fixed="right"
-        header-align="center"
-        align="center"
-        width="150"
-        label="操作">
-<template slot-scope="scope">
-  <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="updateHandle(scope.row)">
-    修改</el-button>
-  <span>|</span>
-  <el-button v-if="isAuth('sys:role:delete')" style="color:red" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
-</template>
+      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+        <template slot-scope="scope">
+          <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="updateHandle(scope.row)">
+            修改</el-button>
+          <span>|</span>
+          <el-button v-if="isAuth('sys:role:delete')" style="color:red" type="text" size="small"
+            @click="deleteHandle(scope.row.id)">删除</el-button>
+        </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      @size-change="sizeChangeHandle"
-      @current-change="currentChangeHandle"
-      :current-page="pageIndex"
-      :page-sizes="[10, 20, 50, 100]"
-      :page-size="pageSize"
-      :total="totalPage"
+    <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page="pageIndex"
+      :page-sizes="[10, 20, 50, 100]" :page-size="pageSize" :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
@@ -63,40 +57,26 @@
             <el-option v-for="item in xieyiList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="性别" :label-width="formLabelWidth"  >
-          <el-radio-group  v-model="addForm.sex" >
+        <el-form-item label="性别" :label-width="formLabelWidth">
+          <el-radio-group v-model="addForm.sex">
             <el-radio label="0">男</el-radio>
             <el-radio label="1">女</el-radio>
           </el-radio-group>
         </el-form-item>
 
-          <el-form-item label="上传照片" :label-width="formLabelWidth">
-              <el-upload ref='upload' 
-              style="width:90%"
-              :auto-upload='false'
-               :file-list="fileList"  
-               :multiple='false' :limit="1"  
-               :http-request="uploadFiles" 
-               accept="image/jpeg,image/gif,image/png" 
-               action='' 
-               list-type="picture"
-               :on-change='changeUpload'>
-                  <el-button slot="trigger" size="mini" type="primary">选取图片</el-button>
-                  <span>&nbsp;</span>
-                  <el-button @click='uploadFiles' size="mini" type="primary">点击上传</el-button>
-              </el-upload>
+        <el-form-item label="上传照片" :label-width="formLabelWidth">
+          <el-upload ref='upload' style="width:90%" :auto-upload='false' :file-list="fileList" :multiple='false'
+            :limit="1" :http-request="uploadFiles" accept="image/jpeg,image/gif,image/png" action='' list-type="picture"
+            :on-change='changeUpload'>
+            <el-button slot="trigger" size="mini" type="primary">选取图片</el-button>
+            <span>&nbsp;</span>
+            <el-button @click='uploadFiles' size="mini" type="primary">点击上传</el-button>
+          </el-upload>
         </el-form-item>
 
-                 <el-form-item label="部门" :label-width="formLabelWidth">
-          <el-cascader
-            style="width:90%"
-            :options="options"
-            :props="props"
-            :show-all-levels="false"
-            ref="myCascader"
-            v-model="gcode"
-            @change="changeCascader"
-            clearable>
+        <el-form-item label="部门" :label-width="formLabelWidth">
+          <el-cascader style="width:90%" :options="options" :props="props" :show-all-levels="false" ref="myCascader"
+            v-model="gcode" @change="changeCascader" clearable>
           </el-cascader>
         </el-form-item>
         <el-form-item label="联系方式" :label-width="formLabelWidth">
@@ -112,27 +92,32 @@
           <el-input style="width:90%" v-model="addForm.address" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="近14天是否接触过新冠确诊病人或疑似病人" :label-width="formLabelWidth">
-          <el-radio-group v-model="addForm.contact" class="groupgroup" >
+          <el-radio-group v-model="addForm.contact" class="groupgroup">
             <el-radio label="0">否</el-radio>
             <el-radio label="1">是</el-radio>
           </el-radio-group>
         </el-form-item>
-        
+
         <el-form-item label="目前健康状态" size="mini" prop="roleIdList" :label-width="formLabelWidth">
-          <el-radio-group v-if="ishealthstatus" v-model="FFFhealthstatus" >
+          <el-radio-group v-if="ishealthstatus" v-model="FFFhealthstatus">
             <el-radio label="0">无异常</el-radio>
             <el-radio label="1">有发烧、咳嗽、乏力、肌肉酸痛、呼吸急促、腹泻等症状</el-radio>
           </el-radio-group>
-         <el-checkbox-group v-if="!ishealthstatus" v-model="healthstatus">
-            <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
+          <el-checkbox-group v-if="!ishealthstatus" v-model="healthstatus">
+            <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId"
+              :label="role.roleId">{{ role.roleName }}</el-checkbox>
           </el-checkbox-group>
-      </el-form-item>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button v-if="!ishealthstatus" @click="goback()">返 回</el-button>
         <el-button @click="cancel()">取 消</el-button>
         <el-button type="primary" @click="commit()">确 定</el-button>
       </div>
+    </el-dialog>
+
+        <el-dialog title="照片查看" :visible.sync="dialogimg" >
+          <img style="width:60%;height:670px;margin-left:50%;transform: translate(-50%);" :src="imgurl" alt="">
     </el-dialog>
   </div>
 </template>
@@ -145,8 +130,10 @@
   export default {
     data() {
       return {
+        imgurl:"",
+        dialogimg:false,
         url: "",
-        title:"新增人员",
+        title: "新增人员",
         ishealthstatus: true,
         FFFhealthstatus: "",
         // 0，无异常 1，发热 2乏力 3干咳 4 鼻塞 5流涕 6咽痛 7腹泻
@@ -213,7 +200,7 @@
           area: "",
           address: "",
           contact: "",
-          image:""
+          image: ""
         },
         healthstatus: [],
         dataList: [],
@@ -227,12 +214,12 @@
         editData: {},
         tem: [],
         no: true,
-        fileList:[],
-        rep:"",
+        fileList: [],
+        rep: "",
       }
     },
     watch: {
-      "FFFhealthstatus": function(val) {
+      "FFFhealthstatus": function (val) {
         if (val == 1) {
           // this.ishealthstatus = false
         }
@@ -246,93 +233,100 @@
 
     },
     methods: {
-      changeUpload(val) {
-           console.log("val--",val)
-          //  this.addForm.image.url
+      look(val) {
+        // console.log("]]]]",val.fileurl)
+        let tem = val.fileurl.replace(this.rep, "http://192.168.0.185:8888")
+        console.log(tem)
+        this.imgurl = tem
+        this.dialogimg = true
       },
-            uploadFiles() {
-                let file = this.$refs.upload.$refs['upload-inner'].$refs.input; //获取文件数据
-                let fileList = file.files;
-                let reader = new FileReader(); //html5读文件
-                console.log("fileList[0]",fileList)
-                console.log("fileList.size----", fileList[0].size <= 4194304);
-                if (fileList[0].size >= 4194304) {
-                    this.$message({
-                        message: "图片大小不能超过4M",
-                        type: 'warning'
-                    });
-                    return;
-                }
-                if( fileList[0].name.split(".")[1] != "jpg") {
-                  this.$message({
-                        message: "只能上传jpg格式",
-                        type: 'warning'
-                    });
-                  return 
-                }
-                let myform = new FormData()
-                myform.append('file', fileList[0]);
-                console.log("开始请求")
-                this.$http({
-                  url: this.$http.adornUrl('/sys/member/upload'),
-                  method: 'POST',
-                  data: myform
-                }).then((data) => {
-                  console.log("返回值-----", data)
-                    if (data.data.code == 0) {
-                        this.$message({
-                            message: "上传成功",
-                            type: 'success'
-                        });
-                        this.addForm.image = data.data.res
-                        console.log("------this.addForm.image----",this.addForm.image)
-                    } else {
-                        this.$message({
-                            message: "上传失败",
-                            type: 'warning'
-                        });
-                    }
-                })
-                // reader.readAsDataURL(fileList[0]); //转BASE64  
-                // let imgFile
-                // // let that = this
-                // reader.onload = e => {
-                //     let imgFile
-                //     imgFile = e.target.result;
-                //     console.log("本地路径---",reader.result[0])
-                //     // let arr = imgFile.split(',')
-                //     // this.datas.faceBase64 = arr[1]
-                //     // console.log(imgFile)
-                //     this.formLabelAlign.image = imgFile
-                //     if (this.formLabelAlign.image != "") {
-                //         this.$message({
-                //             message: "上传成功",
-                //             type: 'success'
-                //         });
-                //     } else {
-                //         this.$message({
-                //             message: "上传失败",
-                //             type: 'warning'
-                //         });
-                //     }
-                // }
-            },
+      changeUpload(val) {
+        console.log("val--", val)
+        //  this.addForm.image.url
+      },
+      uploadFiles() {
+        let file = this.$refs.upload.$refs['upload-inner'].$refs.input; //获取文件数据
+        let fileList = file.files;
+        let reader = new FileReader(); //html5读文件
+        console.log("fileList[0]", fileList)
+        console.log("fileList.size----", fileList[0].size <= 4194304);
+        if (fileList[0].size >= 4194304) {
+          this.$message({
+            message: "图片大小不能超过4M",
+            type: 'warning'
+          });
+          return;
+        }
+        if (fileList[0].name.split(".")[1] != "jpg") {
+          this.$message({
+            message: "只能上传jpg格式",
+            type: 'warning'
+          });
+          return
+        }
+        let myform = new FormData()
+        myform.append('file', fileList[0]);
+        console.log("开始请求")
+        this.$http({
+          url: this.$http.adornUrl('/sys/member/upload'),
+          method: 'POST',
+          data: myform
+        }).then((data) => {
+          console.log("返回值-----", data)
+          if (data.data.code == 0) {
+            this.$message({
+              message: "上传成功",
+              type: 'success'
+            });
+            this.addForm.image = data.data.res
+            console.log("------this.addForm.image----", this.addForm.image)
+          } else {
+            this.$message({
+              message: "上传失败",
+              type: 'warning'
+            });
+          }
+        })
+        // reader.readAsDataURL(fileList[0]); //转BASE64  
+        // let imgFile
+        // // let that = this
+        // reader.onload = e => {
+        //     let imgFile
+        //     imgFile = e.target.result;
+        //     console.log("本地路径---",reader.result[0])
+        //     // let arr = imgFile.split(',')
+        //     // this.datas.faceBase64 = arr[1]
+        //     // console.log(imgFile)
+        //     this.formLabelAlign.image = imgFile
+        //     if (this.formLabelAlign.image != "") {
+        //         this.$message({
+        //             message: "上传成功",
+        //             type: 'success'
+        //         });
+        //     } else {
+        //         this.$message({
+        //             message: "上传失败",
+        //             type: 'warning'
+        //         });
+        //     }
+        // }
+      },
       uploadSuccess(data) {
-        console.log("--上传照片成功回调--",data)
+        console.log("--上传照片成功回调--", data)
       },
       goback() {
         //  this.ishealthstatus = !this.ishealthstatus
-         this.FFFhealthstatus = "0"
+        this.FFFhealthstatus = "0"
       },
       cancel() {
-           this.dialogFormVisible = false
+        this.dialogFormVisible = false
       },
-      sexFormatter( val ) {
-         if( val.sex == 0) {
-           return "男"
-         }else{
-           return "女"
-         }
+      sexFormatter(val) {
+        if (val.sex == 0) {
+          return "男"
+        } else {
+          return "女"
+        }
       },
       idcardFormatter(val) { //身份证脱敏
         let temp = val.idcard
@@ -367,15 +361,15 @@
         } else {
           temhealthstatus = 1
         }
-        console.log("-------",this.addForm)
-        if(this.addForm.image == undefined) {
-            this.$message({
-              message: "请先上传照片",
-              type: 'error',
-            })
-            return
+        console.log("-------", this.addForm)
+        if (this.addForm.image == undefined) {
+          this.$message({
+            message: "请先上传照片",
+            type: 'error',
+          })
+          return
         }
-        
+
         this.$http({
           url: this.$http.adornUrl('/sys/member/save'),
           method: 'POST',
@@ -389,8 +383,8 @@
             address: this.addForm.address,
             contact: this.addForm.contact,
             healthstatus: temhealthstatus,
-            fileurl:this.addForm.image.url,
-            filename:this.addForm.image.name,
+            fileurl: this.addForm.image.url,
+            filename: this.addForm.image.name,
 
           })
         }).then((data) => {
@@ -413,7 +407,7 @@
       },
       updateHandle(row) { //编辑
         this.dialogFormVisible = true
-        this.title= "编辑人员信息"
+        this.title = "编辑人员信息"
         this.addForm = row
         // if (row.healthstatus == 0) {
         //   this.ishealthstatus = true
@@ -427,13 +421,16 @@
         let temGcode = row.gcode
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
-        console.log("-----------------",row.fileurl)
+        console.log("-----------------", row.fileurl)
         // this.healthstatus = healthstatus.split(",")
         // this.addForm.image.fileurl = row.fileurl
         // this.addForm.image.filename = row.filename
-        let tem = row.fileurl.replace(this.rep,"http://192.168.0.185:8888")
-        console.log("图片地址",tem)
-        this.fileList = [{name:row.filename,url:tem}]
+        let tem = row.fileurl.replace(this.rep, "http://192.168.0.185:8888")
+        console.log("图片地址", tem)
+        this.fileList = [{
+          name: row.filename,
+          url: tem
+        }]
       },
       editCommit() { //编辑请求
         let temhealthstatus = ""
@@ -442,13 +439,13 @@
         } else {
           temhealthstatus = 1
         }
-        console.log("---122222222222----",this.addForm)
-        if(this.fileList.length == 0) {
-            this.$message({
-              message: "请先上传照片",
-              type: 'error',
-            })
-            return
+        console.log("---122222222222----", this.addForm)
+        if (this.fileList.length == 0) {
+          this.$message({
+            message: "请先上传照片",
+            type: 'error',
+          })
+          return
         }
         this.$http({
           url: this.$http.adornUrl('/sys/member/update'),
@@ -464,8 +461,8 @@
             contact: this.addForm.contact,
             healthstatus: temhealthstatus,
             id: this.editData.id,
-            fileurl:this.addForm.fileurl,
-            filename:this.addForm.filename,
+            fileurl: this.addForm.fileurl,
+            filename: this.addForm.filename,
           })
         }).then((data) => {
           if (data.data.code == 0) {
@@ -492,7 +489,9 @@
           this.$message.error("请填写正确手机号")
           return
         }
-        if (!/^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/.test(this.addForm.idcard)) {
+        if (!
+          /^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/
+          .test(this.addForm.idcard)) {
           this.$message.error("请填写正确身份证号码")
           return
         }
@@ -582,10 +581,13 @@
       }
     }
   }
+
 </script>
 
 <style scoped>
-    .groupgroup {
-      margin-top: 4% !important;
-    }
+  .groupgroup {
+    margin-top: 4% !important;
+    
+  }
+
 </style>
