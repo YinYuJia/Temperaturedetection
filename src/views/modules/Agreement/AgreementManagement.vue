@@ -431,7 +431,7 @@
         // this.healthstatus = healthstatus.split(",")
         // this.addForm.image.fileurl = row.fileurl
         // this.addForm.image.filename = row.filename
-        let tem = row.fileurl.replace(this.rep,"http://192.168.0.201:8090")
+        let tem = row.fileurl.replace(this.rep,"http://192.168.0.185:8888")
         console.log("图片地址",tem)
         this.fileList = [{name:row.filename,url:tem}]
       },
