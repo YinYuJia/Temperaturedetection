@@ -112,7 +112,7 @@
           <el-input style="width:90%" v-model="addForm.address" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="近14天是否接触过新冠确诊病人或疑似病人" :label-width="formLabelWidth">
-          <el-radio-group v-model="addForm.contact" >
+          <el-radio-group v-model="addForm.contact" class="groupgroup" >
             <el-radio label="0">否</el-radio>
             <el-radio label="1">是</el-radio>
           </el-radio-group>
@@ -121,7 +121,7 @@
         <el-form-item label="目前健康状态" size="mini" prop="roleIdList" :label-width="formLabelWidth">
           <el-radio-group v-if="ishealthstatus" v-model="FFFhealthstatus" >
             <el-radio label="0">无异常</el-radio>
-            <el-radio label="1">发热(体温大于37.3℃)</el-radio>
+            <el-radio label="1">有发烧、咳嗽、乏力、肌肉酸痛、呼吸急促、腹泻等症状</el-radio>
           </el-radio-group>
          <el-checkbox-group v-if="!ishealthstatus" v-model="healthstatus">
             <el-checkbox style="width:130px;margin-left:0" v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
@@ -233,7 +233,7 @@
     watch: {
       "FFFhealthstatus": function(val) {
         if (val == 1) {
-          this.ishealthstatus = false
+          // this.ishealthstatus = false
         }
       }
     },
@@ -319,7 +319,7 @@
         console.log("--上传照片成功回调--",data)
       },
       goback() {
-         this.ishealthstatus = !this.ishealthstatus
+        //  this.ishealthstatus = !this.ishealthstatus
          this.FFFhealthstatus = "0"
       },
       cancel() {
@@ -363,14 +363,7 @@
         if (this.FFFhealthstatus == 0) {
           temhealthstatus = 0
         } else {
-          temhealthstatus = this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1)
-          if (temhealthstatus.split(",").indexOf("1") == -1) {
-            this.$message({
-              message: "请勾选发热选项",
-              type: 'wraning',
-            })
-            return
-          }
+          temhealthstatus = 1
         }
         console.log("-------",this.addForm.image)
         if(this.addForm.image == undefined) {
@@ -420,12 +413,12 @@
         this.dialogFormVisible = true
         this.title= "编辑人员信息"
         this.addForm = row
-        if (row.healthstatus == 0) {
-          this.ishealthstatus = true
-          this.FFFhealthstatus = "0"
-        } else {
-          this.ishealthstatus = false
-        }
+        // if (row.healthstatus == 0) {
+        //   this.ishealthstatus = true
+        //   this.FFFhealthstatus = "0"
+        // } else {
+        //   this.ishealthstatus = false
+        // }
         this.editData = row
         this.addForm.sex = String(row.sex)
         this.addForm.contact = String(row.contact)
@@ -433,7 +426,7 @@
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
         console.log("-----------------",row.fileurl,row.filename)
-        this.healthstatus = healthstatus.split(",")
+        // this.healthstatus = healthstatus.split(",")
         // this.addForm.image.url = row.fileurl
         // this.addForm.image.name = row.filename
         this.fileList = [{name:row.filename,url:row.fileurl}]
@@ -443,14 +436,7 @@
         if (this.FFFhealthstatus == 0) {
           temhealthstatus = 0
         } else {
-          temhealthstatus = this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1)
-          if (temhealthstatus.split(",").indexOf("1") == -1) {
-            this.$message({
-              message: "请勾选发热选项",
-              type: 'wraning',
-            })
-            return
-          }
+          temhealthstatus = 1
         }
         console.log("-------",this.addForm.image)
         if(this.fileList.length == 0) {
@@ -472,7 +458,7 @@
             area: this.addForm.area,
             address: this.addForm.address,
             contact: this.addForm.contact,
-            healthstatus: this.healthstatusFn(this.healthstatus).slice(0, this.healthstatusFn(this.healthstatus).length - 1),
+            healthstatus: temhealthstatus,
             id: this.editData.id,
             fileurl:this.addForm.image.url,
             filename:this.addForm.image.name,
@@ -519,7 +505,7 @@
         this.addForm = {}
         this.gcode = []
         this.healthstatus = []
-        this.ishealthstatus = true
+        // this.ishealthstatus = true
         this.FFFhealthstatus = ""
       },
       getDataList() { // 获取数据列表
@@ -591,3 +577,9 @@
     }
   }
 </script>
+
+<style scoped>
+    .groupgroup {
+      margin-top: 4% !important;
+    }
+</style>

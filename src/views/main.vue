@@ -181,7 +181,7 @@ export default {
   },
   created() {
     this.getUserInfo();
-    this.getOptions()
+    // this.getOptions()
   },
   mounted() {
     this.resetDocumentClientHeight();
