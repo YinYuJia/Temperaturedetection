@@ -74,7 +74,7 @@
           :formatter="amtemperatureFormatter" min-width="130" label="上午测温">
         </el-table-column>
         <el-table-column prop="pmtemperature" header-align="center" align="center" :formatter="pmtemperatureFormatter"
-          min-width="130" label="上午测温">
+          min-width="130" label="下午测温">
         </el-table-column>
         <el-table-column prop="creattime" header-align="center" align="center" min-width="130"
           :formatter="creattimeFormatter" label="预警时间">
@@ -149,14 +149,14 @@
       },
       amtemperatureFormatter(val) {
         if (val.amtemperature == null) {
-          return "暂无数据"
+          return "未监测"
         } else {
           return val.amtemperature + "℃"
         }
       },
       pmtemperatureFormatter(val) {
         if (val.pmtemperature == null) {
-          return "暂无数据"
+          return "未监测"
         } else {
           return val.pmtemperature + "℃"
         }

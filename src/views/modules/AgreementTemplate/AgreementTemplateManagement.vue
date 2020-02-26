@@ -99,7 +99,6 @@
     },
     methods: {
       timeamFormatter( val ) {
-        console.log("上午时间",val.amcreattime)
         if( val.amcreattime != null) {
            return val.amcreattime.split(" ")[1]
         }else{
@@ -107,7 +106,6 @@
         }
       },
       timepmFormatter( val ) {
-         console.log("下午时间",val.pmcreattime)
           if( val.pmcreattime != null) {
            return val.pmcreattime.split(" ")[1]
         }else{
