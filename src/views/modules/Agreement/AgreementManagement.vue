@@ -227,7 +227,8 @@
         editData: {},
         tem: [],
         no: true,
-        fileList:[]
+        fileList:[],
+        rep:"",
       }
     },
     watch: {
@@ -284,6 +285,7 @@
                             type: 'success'
                         });
                         this.addForm.image = data.data.res
+                        console.log("------this.addForm.image----",this.addForm.image)
                     } else {
                         this.$message({
                             message: "上传失败",
@@ -425,11 +427,13 @@
         let temGcode = row.gcode
         this.gcode = temGcode.split(",")
         let healthstatus = row.healthstatus
-        console.log("-----------------",row.fileurl,row.filename)
+        console.log("-----------------",row.fileurl)
         // this.healthstatus = healthstatus.split(",")
-        // this.addForm.image.url = row.fileurl
-        // this.addForm.image.name = row.filename
-        this.fileList = [{name:row.filename,url:row.fileurl}]
+        // this.addForm.image.fileurl = row.fileurl
+        // this.addForm.image.filename = row.filename
+        let tem = row.fileurl.replace(this.rep,"http://192.168.0.201:8090")
+        console.log("图片地址",tem)
+        this.fileList = [{name:row.filename,url:tem}]
       },
       editCommit() { //编辑请求
         let temhealthstatus = ""
@@ -438,7 +442,7 @@
         } else {
           temhealthstatus = 1
         }
-        console.log("-------",this.addForm)
+        console.log("---122222222222----",this.addForm)
         if(this.fileList.length == 0) {
             this.$message({
               message: "请先上传照片",
@@ -525,6 +529,7 @@
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
+            this.rep = data.photoRep
           } else {
             this.dataList = []
             this.totalPage = 0
