@@ -17,7 +17,8 @@ module.exports = {
       '/health_body': {
         // target: 'http://192.168.0.132:8082/health_body/', //彭清
         // target: 'http://2895cl5225.qicp.vip/health_body/', //詹加州外网
-        target: 'http://192.168.0.201:8082/health_body/', //权哥内网
+        // target: 'http://192.168.0.201:8082/health_body/', //权哥内网
+        target: 'http://192.168.0.185:8082/health_body/', //权哥内网
         changeOrigin: true,
         pathRewrite: {
           '^/health_body': '/'

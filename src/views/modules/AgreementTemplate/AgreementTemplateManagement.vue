@@ -22,12 +22,12 @@
       </el-table-column>
       <el-table-column prop="creattime" header-align="center" align="center" min-width="180" :formatter="creattimeFormatter" label="测温日期">
       </el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+      <!-- <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
                 <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
                 <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
-</template>
-      </el-table-column>
+        </template>
+      </el-table-column> -->
     </el-table>
     <el-pagination
       @size-change="sizeChangeHandle"
