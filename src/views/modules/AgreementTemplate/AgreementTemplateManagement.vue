@@ -3,7 +3,7 @@
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input style="width:200px" v-model="dataForm.membername" placeholder="请输入分类名称" clearable></el-input>
+        <el-input style="width:200px" v-model="dataForm.membername" placeholder="请输入姓名" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -119,10 +119,19 @@
           return ""
       },
       amtemperatureFormatter( val ) {
-         return val.amtemperature + "℃"
+        if( val.amtemperature == null ) {
+          return "未测温"
+        }else{
+          return val.amtemperature + "℃"
+        }
+        
       },
       pmtemperatureFormatter( val ) {
-         return val.pmtemperature + "℃"
+        if( val.pmtemperature == null ) {
+          return "未测温"
+        }else{
+          return val.pmtemperature + "℃"
+        }
       },
       // 保存
       save() {

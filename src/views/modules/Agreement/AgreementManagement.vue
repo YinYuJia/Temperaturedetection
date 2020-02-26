@@ -3,7 +3,7 @@
   <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input style="width:200px" v-model="dataForm.name" placeholder="请输入关键字" clearable></el-input>
+        <el-input style="width:200px" v-model="dataForm.name" placeholder="请输入姓名" clearable></el-input>
         <!-- <el-input style="width:200px" v-model="dataForm.keyword" placeholder="角色名称" clearable></el-input> -->
       </el-form-item>
       <el-form-item>
@@ -365,7 +365,7 @@
         } else {
           temhealthstatus = 1
         }
-        console.log("-------",this.addForm.image)
+        console.log("-------",this.addForm)
         if(this.addForm.image == undefined) {
             this.$message({
               message: "请先上传照片",
@@ -438,7 +438,7 @@
         } else {
           temhealthstatus = 1
         }
-        console.log("-------",this.addForm.image)
+        console.log("-------",this.addForm)
         if(this.fileList.length == 0) {
             this.$message({
               message: "请先上传照片",
@@ -460,8 +460,8 @@
             contact: this.addForm.contact,
             healthstatus: temhealthstatus,
             id: this.editData.id,
-            fileurl:this.addForm.image.url,
-            filename:this.addForm.image.name,
+            fileurl:this.addForm.fileurl,
+            filename:this.addForm.filename,
           })
         }).then((data) => {
           if (data.data.code == 0) {
@@ -505,6 +505,7 @@
         this.addForm = {}
         this.gcode = []
         this.healthstatus = []
+        this.fileList = []
         // this.ishealthstatus = true
         this.FFFhealthstatus = ""
       },
