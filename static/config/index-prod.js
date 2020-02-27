@@ -6,7 +6,7 @@
 
   // api接口请求地址
   //10.10.17.16
-  window.SITE_CONFIG['baseUrl'] = 'http://115.236.28.74:18082/ddkj';
+  window.SITE_CONFIG['baseUrl'] = 'http://192.168.0.185:8082/health_body';
   // window.SITE_CONFIG['baseUrl'] = 'http://z2r5819973.qicp.vip:20718/ddkj';
 
   // cdn地址 = 域名 + 版本号

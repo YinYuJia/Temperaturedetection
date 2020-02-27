@@ -277,6 +277,17 @@
           title: {
             text: '健康统计图'
           },
+          tooltip: {
+            trigger: 'axis',
+            formatter:'{b0}<br />温度:  {c0}℃',
+            axisPointer: {
+              type: 'cross',
+              
+              label: {
+                backgroundColor: '#0f0'
+              }
+            }
+          },
           grid: {
             left: '3%',
             right: '4%',
@@ -296,7 +307,7 @@
             type: 'value'
           }],
           series: [{
-            name: '邮件营销',
+            name: '温度',
             smooth: true, //true 为平滑曲线，false为直线
             type: 'line',
             stack: '总量',
