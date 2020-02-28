@@ -279,10 +279,10 @@
           },
           tooltip: {
             trigger: 'axis',
-            formatter:'{b0}<br />温度:  {c0}℃',
+            formatter: '{b0}<br />温度:  {c0}℃',
             axisPointer: {
               type: 'cross',
-              
+
               label: {
                 backgroundColor: '#0f0'
               }
@@ -304,7 +304,11 @@
             // }
           }],
           yAxis: [{
-            type: 'value'
+            type: 'value',
+            min: function (value) {
+              return 35.5;
+            },
+
           }],
           series: [{
             name: '温度',
