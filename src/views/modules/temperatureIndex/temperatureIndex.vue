@@ -52,6 +52,9 @@
               <el-option v-for="item in option" :key="item.index" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item>
+            <!-- <el-button @click="exportExcle()">导出</el-button> -->
+          </el-form-item>
         </el-form>
       </div>
     </div>
@@ -197,6 +200,33 @@
         day = d.getDate();
         let s = year + "-" + (mon < 10 ? ('0' + mon) : mon) + "-" + (day < 10 ? ('0' + day) : day);
         return s;
+      },
+      exportExcle() {
+        // 导出excle
+        console.log(this.option)
+        let temp = ""
+        this.option.map((item, index) => {
+          if (this.dataForm.region == item.id) {
+            temp = item.name
+          }
+        })
+
+        console.log(temp)
+        this.$http({
+          url: this.$http.adornUrl('/sys/healthstatistics/excel'),
+          method: 'get',
+          params: this.$http.adornParams({
+            membername: temp,
+            startTime: this.dataForm.value1[0] + " 00:00:00",
+            endTime: this.dataForm.value1[1] + " 23:59:59",
+          })
+        }).then(({
+          data
+        }) => {
+          if (data && data.code === 0) {
+            console.log("-----", data)
+          } else {}
+        })
       },
       getEchartList(data) {
         this.$http({
